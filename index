@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Flota - Taller</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div class="form-container">
+    <div class="header-img">
+      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%"> 
+    </div>
+
+    <div class="tabs">
+      <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA</button>
+      <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">DEVOLUCIÓN</button>
+    </div>
+
+    <div id="tab-salida">
+      <div class="section">
+        <h3>🚗 DATOS PRESTAMO</h3>
+        <div class="grid-3">
+          <div>
+            <label>Vehículo (Matrícula)</label>
+            <select id="p-veh-select" onchange="autoRellenarCoche()">
+              <option value="">Cargando stock...</option>
+            </select>
+          </div>
+          <div><label>Modelo</label><input id="p-mod"></div>
+          <div><label>KMs Salida</label><input id="p-kms" type="number"></div>
+        </div>
+        <div class="grid-3">
+          <input id="p-comb" placeholder="Combustible Salida">
+          <input id="p-mat-c" placeholder="Matrícula Cliente">
+          <input id="p-or" placeholder="Nº Orden (OR)">
+        </div>
+        <div class="grid-3">
+          <select id="p-motivo">
+            <option value="Avería">Avería</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Chapa">Chapa</option>
+            <option value="M. Servicio">M. Servicio</option>
+          </select>
+          <input id="p-tarifa" placeholder="Tarifa">
+          <input id="p-cp" placeholder="C. Postal">
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>👤 DATOS CLIENTE</h3>
+        <div class="grid-2"><input id="p-nom" placeholder="Nombre completo"><input id="p-dni" placeholder="DNI"></div>
+        <div class="grid-2"><input id="p-tel" placeholder="Teléfono"> <label>F. Nacimiento <input id="p-fnac" type="date"></label></div>
+        <div class="grid-3">
+          <label>F. Carnet <input id="p-fcarnet" type="date"></label>
+          <label>Caducidad <input id="p-fcad" type="date"></label>
+          <label>F. Aprox. Dev <input id="p-faprox" type="date"></label>
+        </div>
+        <textarea id="p-obs" placeholder="Observaciones..." style="width:100%; margin-top:10px;"></textarea>
+      </div>
+      <button class="btn-main" id="btn-salida" onclick="finalizarSalida()">GRABAR E IMPRIMIR</button>
+    </div>
+
+    <div id="tab-entrada" style="display:none">
+      <div class="section">
+        <h3>🏁 DEVOLUCIÓN</h3>
+        <label>Vehículo a recibir</label>
+        <select id="d-veh-select" style="font-size:18px; height:45px; margin-bottom:15px;"></select>
+        <div class="grid-2">
+          <input id="d-kms" type="number" placeholder="KMs Entrada">
+          <input id="d-comb" placeholder="Combustible Entrada">
+        </div>
+        <button class="btn-main" style="background:#0056b3; margin-top:20px;" onclick="finalizarEntrada()">REGISTRAR ENTRADA Y LIBERAR</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

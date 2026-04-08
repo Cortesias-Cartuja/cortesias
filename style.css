@@ -1,0 +1,24 @@
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background: #f4f6f9; 
+    margin: 0; 
+    padding: 10px 20px; 
+}
+.form-container { 
+    max-width: 800px; 
+    margin: 20px auto; 
+    background: white; 
+    padding: 30px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+}
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.btn-tab { padding: 12px 20px; border: none; cursor: pointer; font-weight: bold; flex: 1; border-radius: 5px; background: #e9ecef; color: #495057; }
+.btn-tab.active { background: #002e63; color: white; }
+.section { border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+.btn-main { width: 100%; padding: 18px; background: #28a745; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.btn-main:disabled { background: #ccc; }
+label { font-size: 11px; color: #6c757d; font-weight: bold; margin-bottom: 4px; display: block; }

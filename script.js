@@ -1,12 +1,12 @@
 // CONFIGURACIÓN DE FIREBASE
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
+  authDomain: "cortesias-4235e.firebaseapp.com",
+  databaseURL: "https://cortesias-4235e-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "cortesias-4235e",
+  storageBucket: "cortesias-4235e.firebasestorage.app",
+  messagingSenderId: "45340224860",
+  appId: "1:45340224860:web:69c15fc56fc5a04ab76599"
 };
 
 // Inicializar Firebase

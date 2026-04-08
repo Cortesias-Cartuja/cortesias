@@ -3,61 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Administrador - Flota</title>
+  <title>Sistema de Gestión Total - Taller</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <style>
-    .admin-container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-    th { background: #002e63; color: white; }
-    .btn-del { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-    .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; margin-top: 10px; }
-    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    body { background: #f0f2f5; }
+    .admin-container { max-width: 1100px; margin: 20px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    
+    /* Stats Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; }
+    .bg-blue { background: #002e63; }
+    .bg-green { background: #28a745; }
+    .bg-orange { background: #fd7e14; }
+    
+    .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-top: 30px; padding-bottom: 10px; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+    th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
+    th { background: #f8f9fa; color: #333; }
+    
+    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
     .disponible { background: #d4edda; color: #155724; }
-    .prestado { background: #fff3cd; color: #856404; }
+    .prestado { background: #f8d7da; color: #721c24; }
+    
+    .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
+    .btn-red { background: #ff4d4d; color: white; }
+    
+    .scroll-table { overflow-x: auto; max-height: 400px; overflow-y: auto; }
   </style>
 </head>
 <body>
 
 <div class="admin-container">
-  <h2>🛠️ Gestión de Flota (Panel Admin)</h2>
-  <a href="index.html" style="text-decoration: none; color: #0056b3; font-weight: bold;">← Volver al Formulario</a>
-  
-  <hr>
-
-  <h3>Añadir Nuevo Vehículo</h3>
-  <div class="grid-3">
-    <input id="new-mat" placeholder="Matrícula (ej: 1234ABC)">
-    <input id="new-mod" placeholder="Modelo (ej: Citroen C3)">
-    <input id="new-kms" type="number" placeholder="KMs actuales">
-  </div>
-  <div class="grid-2">
-    <input id="new-comb" placeholder="Combustible (ej: 4/4 o 100%)">
-    <button class="btn-add" onclick="agregarCoche()">AÑADIR A LA FLOTA</button>
+  <div style="display:flex; justify-content: space-between; align-items:center;">
+    <h1>📊 Panel de Gestión Total</h1>
+    <a href="index.html" class="btn-tab active" style="text-decoration:none; max-width: 150px; text-align:center;">Volver al Formulario</a>
   </div>
 
-  <hr>
+  <div class="stats-grid">
+    <div class="stat-card bg-blue">
+      <small>Total Flota</small>
+      <h2 id="stat-total">0</h2>
+    </div>
+    <div class="stat-card bg-green">
+      <small>Disponibles</small>
+      <h2 id="stat-disp">0</h2>
+    </div>
+    <div class="stat-card bg-orange">
+      <small>En Préstamo</small>
+      <h2 id="stat-pres">0</h2>
+    </div>
+  </div>
 
-  <h3>Vehículos en Sistema</h3>
-  <table id="tabla-coches">
-    <thead>
-      <tr>
-        <th>Matrícula</th>
-        <th>Modelo</th>
-        <th>KMs</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody id="lista-admin">
-      </tbody>
-  </table>
+  <div class="section-header">
+    <h3>🚗 Gestión de Vehículos (Alta/Baja)</h3>
+  </div>
+  <div class="section" style="background: #f9f9f9;">
+    <div class="grid-3">
+      <input id="new-mat" placeholder="Matrícula">
+      <input id="new-mod" placeholder="Marca / Modelo">
+      <input id="new-kms" type="number" placeholder="KMs Iniciales">
+    </div>
+    <div class="grid-2" style="margin-top:10px;">
+      <input id="new-comb" placeholder="Combustible (ej: 100%)">
+      <button class="btn-main" onclick="agregarCoche()">AÑADIR NUEVO VEHÍCULO</button>
+    </div>
+  </div>
+
+  <div class="scroll-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Matrícula</th>
+          <th>Modelo</th>
+          <th>KMs Actuales</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="lista-vehiculos"></tbody>
+    </table>
+  </div>
+
+  <div class="section-header">
+    <h3>📋 Historial de Préstamos Recientes</h3>
+  </div>
+  <div class="scroll-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha Salida</th>
+          <th>Vehículo</th>
+          <th>Cliente</th>
+          <th>Teléfono</th>
+          <th>OR / ASPV</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="lista-contratos"></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-  // USA LA MISMA CONFIGURACIÓN QUE EN TU SCRIPT.JS
+  // --- CONFIGURACIÓN FIREBASE (PEGA TUS DATOS AQUÍ) ---
   const firebaseConfig = {
     apiKey: "TU_API_KEY",
     authDomain: "TU_PROYECTO.firebaseapp.com",
@@ -71,64 +122,82 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // Cargar coches al iniciar
-  window.onload = () => {
-    db.ref('coches').on('value', (snapshot) => {
-      const coches = snapshot.val() || {};
-      const tabla = document.getElementById('lista-admin');
-      tabla.innerHTML = "";
+  // Escuchar Vehículos
+  db.ref('coches').on('value', (snapshot) => {
+    const coches = snapshot.val() || {};
+    renderVehiculos(coches);
+    renderStats(coches);
+  });
 
-      Object.keys(coches).forEach(id => {
-        const c = coches[id];
-        const badgeClass = c.estado === 'Disponible' ? 'disponible' : 'prestado';
-        
-        tabla.innerHTML += `
-          <tr>
-            <td><b>${c.matricula}</b></td>
-            <td>${c.modelo}</td>
-            <td>${c.kms} km</td>
-            <td><span class="status-badge ${badgeClass}">${c.estado}</span></td>
-            <td>
-              <button class="btn-del" onclick="eliminarCoche('${id}')">Eliminar</button>
-            </td>
-          </tr>
-        `;
-      });
+  // Escuchar Contratos (Historial)
+  db.ref('contratos').limitToLast(20).on('value', (snapshot) => {
+    const contratos = snapshot.val() || {};
+    renderContratos(contratos);
+  });
+
+  function renderStats(coches) {
+    const total = Object.keys(coches).length;
+    const disp = Object.values(coches).filter(c => c.estado === 'Disponible').length;
+    const pres = total - disp;
+    document.getElementById('stat-total').innerText = total;
+    document.getElementById('stat-disp').innerText = disp;
+    document.getElementById('stat-pres').innerText = pres;
+  }
+
+  function renderVehiculos(coches) {
+    const lista = document.getElementById('lista-vehiculos');
+    lista.innerHTML = "";
+    Object.keys(coches).forEach(id => {
+      const c = coches[id];
+      lista.innerHTML += `
+        <tr>
+          <td><b>${c.matricula}</b></td>
+          <td>${c.modelo}</td>
+          <td>${c.kms}</td>
+          <td><span class="status-badge ${c.estado.toLowerCase()}">${c.estado}</span></td>
+          <td><button class="btn-action btn-red" onclick="eliminarCoche('${id}')">Eliminar</button></td>
+        </tr>
+      `;
     });
-  };
+  }
+
+  function renderContratos(contratos) {
+    const lista = document.getElementById('lista-contratos');
+    lista.innerHTML = "";
+    // Invertir para ver el más reciente primero
+    Object.values(contratos).reverse().forEach(c => {
+      lista.innerHTML += `
+        <tr>
+          <td>${c.fechaSalida || '---'}</td>
+          <td><b>${c.matricula}</b></td>
+          <td>${c.nombre}</td>
+          <td>${c.tel}</td>
+          <td>${c.or}</td>
+          <td><span class="status-badge" style="background:#eee">Finalizado/Activo</span></td>
+        </tr>
+      `;
+    });
+  }
 
   async function agregarCoche() {
     const mat = document.getElementById('new-mat').value.toUpperCase();
     const mod = document.getElementById('new-mod').value;
     const kms = document.getElementById('new-kms').value;
     const comb = document.getElementById('new-comb').value;
+    if(!mat || !mod) return alert("Matrícula y Modelo obligatorios");
 
-    if(!mat || !mod || !kms) return alert("Rellena los datos principales");
-
-    try {
-      await db.ref('coches').push({
-        matricula: mat,
-        modelo: mod,
-        kms: kms,
-        combustible: comb,
-        estado: "Disponible"
-      });
-      // Limpiar campos
-      document.getElementById('new-mat').value = "";
-      document.getElementById('new-mod').value = "";
-      document.getElementById('new-kms').value = "";
-      alert("Vehículo añadido con éxito");
-    } catch(e) {
-      alert("Error: " + e.message);
-    }
+    await db.ref('coches').push({
+      matricula: mat, modelo: mod, kms: kms, combustible: comb, estado: "Disponible"
+    });
+    document.getElementById('new-mat').value = "";
+    document.getElementById('new-mod').value = "";
   }
 
   async function eliminarCoche(id) {
-    if(confirm("¿Seguro que quieres eliminar este vehículo del sistema?")) {
+    if(confirm("¿Eliminar este vehículo permanentemente?")) {
       await db.ref('coches/' + id).remove();
     }
   }
 </script>
-
 </body>
 </html>

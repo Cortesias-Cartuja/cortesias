@@ -9,9 +9,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <style>
     body { background: #f0f2f5; }
-    .admin-container { max-width: 1100px; margin: 20px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .admin-container { max-width: 1200px; margin: 20px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
     
-    /* Stats Cards */
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; }
     .bg-blue { background: #002e63; }
@@ -22,7 +21,7 @@
     
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
     th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
-    th { background: #f8f9fa; color: #333; }
+    th { background: #f8f9fa; color: #333; position: sticky; top: 0; }
     
     .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
     .disponible { background: #d4edda; color: #155724; }
@@ -30,8 +29,10 @@
     
     .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
     .btn-red { background: #ff4d4d; color: white; }
+    .btn-excel { background: #1d6f42; color: white; padding: 8px 15px; border-radius: 5px; border: none; cursor: pointer; }
     
-    .scroll-table { overflow-x: auto; max-height: 400px; overflow-y: auto; }
+    .scroll-table { overflow-x: auto; max-height: 450px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
+    .search-box { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -43,24 +44,15 @@
   </div>
 
   <div class="stats-grid">
-    <div class="stat-card bg-blue">
-      <small>Total Flota</small>
-      <h2 id="stat-total">0</h2>
-    </div>
-    <div class="stat-card bg-green">
-      <small>Disponibles</small>
-      <h2 id="stat-disp">0</h2>
-    </div>
-    <div class="stat-card bg-orange">
-      <small>En Préstamo</small>
-      <h2 id="stat-pres">0</h2>
-    </div>
+    <div class="stat-card bg-blue"><small>Total Flota</small><h2 id="stat-total">0</h2></div>
+    <div class="stat-card bg-green"><small>Disponibles</small><h2 id="stat-disp">0</h2></div>
+    <div class="stat-card bg-orange"><small>En Préstamo</small><h2 id="stat-pres">0</h2></div>
   </div>
 
   <div class="section-header">
     <h3>🚗 Gestión de Vehículos (Alta/Baja)</h3>
   </div>
-  <div class="section" style="background: #f9f9f9;">
+  <div class="section" style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
     <div class="grid-3">
       <input id="new-mat" placeholder="Matrícula">
       <input id="new-mod" placeholder="Marca / Modelo">
@@ -72,7 +64,7 @@
     </div>
   </div>
 
-  <div class="scroll-table">
+  <div class="scroll-table" style="margin-top: 20px;">
     <table>
       <thead>
         <tr>
@@ -88,17 +80,21 @@
   </div>
 
   <div class="section-header">
-    <h3>📋 Historial de Préstamos Recientes</h3>
+    <h3>📋 Historial de Préstamos</h3>
+    <button class="btn-excel" onclick="exportarExcel()">📥 Descargar Historial</button>
   </div>
+  
+  <input type="text" id="historialSearch" class="search-box" placeholder="Buscar por matrícula, cliente o DNI..." onkeyup="filtrarHistorial()">
+
   <div class="scroll-table">
-    <table>
+    <table id="tablaHistorial">
       <thead>
         <tr>
           <th>Fecha Salida</th>
           <th>Vehículo</th>
           <th>Cliente</th>
-          <th>Teléfono</th>
           <th>OR / ASPV</th>
+          <th>Tiempo fuera</th>
           <th>Estado</th>
         </tr>
       </thead>
@@ -108,40 +104,37 @@
 </div>
 
 <script>
-  // --- CONFIGURACIÓN FIREBASE (PEGA TUS DATOS AQUÍ) ---
+  // CONFIGURACIÓN FIREBASE REAL
   const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-    projectId: "TU_PROYECTO",
-    storageBucket: "TU_PROYECTO.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
+    authDomain: "cortesias-4235e.firebaseapp.com",
+    databaseURL: "https://cortesias-4235e-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "cortesias-4235e",
+    storageBucket: "cortesias-4235e.firebasestorage.app",
+    messagingSenderId: "45340224860",
+    appId: "1:45340224860:web:69c15fc56fc5a04ab76599"
   };
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // Escuchar Vehículos
-  db.ref('coches').on('value', (snapshot) => {
+  // Escuchar Datos
+  db.ref('coches').on('value', snapshot => {
     const coches = snapshot.val() || {};
     renderVehiculos(coches);
     renderStats(coches);
   });
 
-  // Escuchar Contratos (Historial)
-  db.ref('contratos').limitToLast(20).on('value', (snapshot) => {
+  db.ref('contratos').on('value', snapshot => {
     const contratos = snapshot.val() || {};
     renderContratos(contratos);
   });
 
   function renderStats(coches) {
-    const total = Object.keys(coches).length;
-    const disp = Object.values(coches).filter(c => c.estado === 'Disponible').length;
-    const pres = total - disp;
-    document.getElementById('stat-total').innerText = total;
-    document.getElementById('stat-disp').innerText = disp;
-    document.getElementById('stat-pres').innerText = pres;
+    const vals = Object.values(coches);
+    document.getElementById('stat-total').innerText = vals.length;
+    document.getElementById('stat-disp').innerText = vals.filter(c => c.estado === 'Disponible').length;
+    document.getElementById('stat-pres').innerText = vals.filter(c => c.estado === 'Prestado').length;
   }
 
   function renderVehiculos(coches) {
@@ -153,7 +146,7 @@
         <tr>
           <td><b>${c.matricula}</b></td>
           <td>${c.modelo}</td>
-          <td>${c.kms}</td>
+          <td>${c.kms} km</td>
           <td><span class="status-badge ${c.estado.toLowerCase()}">${c.estado}</span></td>
           <td><button class="btn-action btn-red" onclick="eliminarCoche('${id}')">Eliminar</button></td>
         </tr>
@@ -164,39 +157,77 @@
   function renderContratos(contratos) {
     const lista = document.getElementById('lista-contratos');
     lista.innerHTML = "";
-    // Invertir para ver el más reciente primero
     Object.values(contratos).reverse().forEach(c => {
+      const dias = calcularDiferenciaDias(c.fechaSalida);
       lista.innerHTML += `
         <tr>
-          <td>${c.fechaSalida || '---'}</td>
+          <td>${c.fechaSalida}</td>
           <td><b>${c.matricula}</b></td>
-          <td>${c.nombre}</td>
-          <td>${c.tel}</td>
+          <td>${c.nombre} <br><small>${c.tel}</small></td>
           <td>${c.or}</td>
-          <td><span class="status-badge" style="background:#eee">Finalizado/Activo</span></td>
+          <td>${dias}</td>
+          <td><span class="status-badge" style="background:#eee">Cerrado</span></td>
         </tr>
       `;
     });
   }
 
+  function calcularDiferenciaDias(fechaStr) {
+    if(!fechaStr) return "---";
+    // Intenta parsear la fecha (formato esperado local dd/mm/yyyy, hh:mm:ss)
+    try {
+      const partes = fechaStr.split(",")[0].split("/");
+      const fechaSalida = new Date(partes[2], partes[1] - 1, partes[0]);
+      const hoy = new Date();
+      const diff = Math.floor((hoy - fechaSalida) / (1000 * 60 * 60 * 24));
+      return diff === 0 ? "Hoy" : `Hace ${diff} días`;
+    } catch(e) { return "---"; }
+  }
+
+  function filtrarHistorial() {
+    const input = document.getElementById("historialSearch").value.toUpperCase();
+    const rows = document.getElementById("lista-contratos").getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+      rows[i].style.display = rows[i].innerText.toUpperCase().includes(input) ? "" : "none";
+    }
+  }
+
   async function agregarCoche() {
-    const mat = document.getElementById('new-mat').value.toUpperCase();
-    const mod = document.getElementById('new-mod').value;
+    const mat = document.getElementById('new-mat').value.toUpperCase().trim();
+    const mod = document.getElementById('new-mod').value.trim();
     const kms = document.getElementById('new-kms').value;
     const comb = document.getElementById('new-comb').value;
-    if(!mat || !mod) return alert("Matrícula y Modelo obligatorios");
+    
+    if(!mat || !mod) return alert("Matrícula y Modelo son obligatorios");
 
     await db.ref('coches').push({
-      matricula: mat, modelo: mod, kms: kms, combustible: comb, estado: "Disponible"
+      matricula: mat, modelo: mod, kms: kms || 0, combustible: comb || "100%", estado: "Disponible"
     });
+    
     document.getElementById('new-mat').value = "";
     document.getElementById('new-mod').value = "";
+    alert("Vehículo añadido correctamente.");
   }
 
   async function eliminarCoche(id) {
-    if(confirm("¿Eliminar este vehículo permanentemente?")) {
+    if(confirm("¿Estás seguro de eliminar este vehículo? Se borrará permanentemente de la flota.")) {
       await db.ref('coches/' + id).remove();
     }
+  }
+
+  function exportarExcel() {
+    let csv = "Fecha;Matricula;Cliente;Telefono;OR;Kms Salida\n";
+    db.ref('contratos').once('value', snapshot => {
+      const data = snapshot.val();
+      Object.values(data).forEach(c => {
+        csv += `${c.fechaSalida};${c.matricula};${c.nombre};${c.tel};${c.or};${c.kms}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", "historial_prestamos.csv");
+      link.click();
+    });
   }
 </script>
 </body>

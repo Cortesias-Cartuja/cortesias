@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrador - Flota</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+  <style>
+    .admin-container { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+    th { background: #002e63; color: white; }
+    .btn-del { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
+    .btn-add { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    .disponible { background: #d4edda; color: #155724; }
+    .prestado { background: #fff3cd; color: #856404; }
+  </style>
+</head>
+<body>
+
+<div class="admin-container">
+  <h2>🛠️ Gestión de Flota (Panel Admin)</h2>
+  <a href="index.html" style="text-decoration: none; color: #0056b3; font-weight: bold;">← Volver al Formulario</a>
+  
+  <hr>
+
+  <h3>Añadir Nuevo Vehículo</h3>
+  <div class="grid-3">
+    <input id="new-mat" placeholder="Matrícula (ej: 1234ABC)">
+    <input id="new-mod" placeholder="Modelo (ej: Citroen C3)">
+    <input id="new-kms" type="number" placeholder="KMs actuales">
+  </div>
+  <div class="grid-2">
+    <input id="new-comb" placeholder="Combustible (ej: 4/4 o 100%)">
+    <button class="btn-add" onclick="agregarCoche()">AÑADIR A LA FLOTA</button>
+  </div>
+
+  <hr>
+
+  <h3>Vehículos en Sistema</h3>
+  <table id="tabla-coches">
+    <thead>
+      <tr>
+        <th>Matrícula</th>
+        <th>Modelo</th>
+        <th>KMs</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="lista-admin">
+      </tbody>
+  </table>
+</div>
+
+<script>
+  // USA LA MISMA CONFIGURACIÓN QUE EN TU SCRIPT.JS
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId: "TU_APP_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Cargar coches al iniciar
+  window.onload = () => {
+    db.ref('coches').on('value', (snapshot) => {
+      const coches = snapshot.val() || {};
+      const tabla = document.getElementById('lista-admin');
+      tabla.innerHTML = "";
+
+      Object.keys(coches).forEach(id => {
+        const c = coches[id];
+        const badgeClass = c.estado === 'Disponible' ? 'disponible' : 'prestado';
+        
+        tabla.innerHTML += `
+          <tr>
+            <td><b>${c.matricula}</b></td>
+            <td>${c.modelo}</td>
+            <td>${c.kms} km</td>
+            <td><span class="status-badge ${badgeClass}">${c.estado}</span></td>
+            <td>
+              <button class="btn-del" onclick="eliminarCoche('${id}')">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+    });
+  };
+
+  async function agregarCoche() {
+    const mat = document.getElementById('new-mat').value.toUpperCase();
+    const mod = document.getElementById('new-mod').value;
+    const kms = document.getElementById('new-kms').value;
+    const comb = document.getElementById('new-comb').value;
+
+    if(!mat || !mod || !kms) return alert("Rellena los datos principales");
+
+    try {
+      await db.ref('coches').push({
+        matricula: mat,
+        modelo: mod,
+        kms: kms,
+        combustible: comb,
+        estado: "Disponible"
+      });
+      // Limpiar campos
+      document.getElementById('new-mat').value = "";
+      document.getElementById('new-mod').value = "";
+      document.getElementById('new-kms').value = "";
+      alert("Vehículo añadido con éxito");
+    } catch(e) {
+      alert("Error: " + e.message);
+    }
+  }
+
+  async function eliminarCoche(id) {
+    if(confirm("¿Seguro que quieres eliminar este vehículo del sistema?")) {
+      await db.ref('coches/' + id).remove();
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -34,13 +34,6 @@
       border-radius: 8px;
       border: 1px solid #b6c9f0;
     }
-    .thumb-salida {
-      height: 80px;
-      border-radius: 4px;
-      margin-right: 5px;
-      border: 1px solid #999;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -86,10 +79,6 @@
           <input id="p-tarifa" placeholder="Tarifa (€)">
           <input id="p-cp" placeholder="Código Postal">
         </div>
-        <div style="margin-top: 15px;">
-          <label>📸 Fotos de daños actuales (Cámara)</label>
-          <input type="file" id="p-fotos" accept="image/*" multiple capture="environment">
-        </div>
       </div>
 
       <div class="section">
@@ -118,7 +107,7 @@
       </div>
 
       <button class="btn-main" id="btn-salida" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR CONTRATO</button>
-      <div id="upload-status" class="upload-info" style="display:none; text-align:center;">⏳ Subiendo firma y fotos... Por favor, espere.</div>
+      <div id="upload-status" class="upload-info" style="display:none; text-align:center;">⏳ Guardando datos y firma...</div>
     </div>
 
     <div id="tab-entrada" style="display:none">
@@ -128,10 +117,7 @@
         <select id="d-veh-select" onchange="verEstadoSalida()" style="font-size:18px; height:45px; margin-bottom:15px;"></select>
         
         <div id="comparativa-salida">
-          <p><strong>Estado al salir:</strong> <span id="info-kms-salida"></span> KMs</p>
-          <p><strong>Fotos de salida:</strong></p>
-          <div id="fotos-salida-contenedor" style="display:flex; gap:5px; overflow-x:auto; padding-bottom:5px;"></div>
-        </div>
+          </div>
 
         <div class="grid-2">
           <div>

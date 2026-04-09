@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestión de Flota - Taller</title>
   <link rel="stylesheet" href="style.css">
+  
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
+  
   <style>
-    /* Estilos para el panel de firma */
+    /* Panel de firma */
     #signature-pad {
       border: 2px dashed #ccc;
       border-radius: 8px;
@@ -17,31 +19,48 @@
       background: #f9f9f9;
       width: 100%;
       height: 200px;
-      touch-action: none; /* Crucial para tablets */
+      touch-action: none;
     }
     .signature-container { margin-top: 15px; text-align: center; }
     .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
-    .upload-info { font-size: 12px; color: #555; margin-top: 5px; }
+    .upload-info { font-size: 13px; color: #0056b3; margin-top: 10px; font-weight: bold; }
+    
+    /* Comparativa devolución */
+    #comparativa-salida {
+      display: none;
+      background: #eef4ff;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #b6c9f0;
+    }
+    .thumb-salida {
+      height: 80px;
+      border-radius: 4px;
+      margin-right: 5px;
+      border: 1px solid #999;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="form-container">
     <div style="text-align: right; padding-bottom: 10px;">
-      <a href="admin.html" style="font-size: 12px; color: #666; text-decoration: none;">⚙️ Panel Admin</a>
+      <a href="admin.html" style="font-size: 12px; color: #666; text-decoration: none; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px;">⚙️ Acceso Admin</a>
     </div>
     
     <div class="header-img">
-      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%"> 
+      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%" alt="Logo Taller"> 
     </div>
 
     <div class="tabs">
-      <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA</button>
-      <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">DEVOLUCIÓN</button>
+      <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA (Préstamo)</button>
+      <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">ENTRADA (Devolución)</button>
     </div>
 
     <div id="tab-salida">
       <div class="section">
-        <h3>🚗 DATOS PRESTAMO</h3>
+        <h3>🚗 DATOS DEL VEHÍCULO DE CORTESÍA</h3>
         <div class="grid-3">
           <div>
             <label>Vehículo (Matrícula)</label>
@@ -49,23 +68,23 @@
               <option value="">Cargando stock...</option>
             </select>
           </div>
-          <div><label>Modelo</label><input id="p-mod"></div>
+          <div><label>Modelo</label><input id="p-mod" readonly style="background:#f0f0f0;"></div>
           <div><label>KMs Salida</label><input id="p-kms" type="number"></div>
         </div>
         <div class="grid-3">
-          <input id="p-comb" placeholder="Combustible Salida">
+          <input id="p-comb" placeholder="Combustible (ej. 4/4)">
           <input id="p-mat-c" placeholder="Matrícula Cliente">
-          <input id="p-or" placeholder="Nº Orden (OR)">
+          <input id="p-or" placeholder="Nº Orden / ASPV">
         </div>
         <div class="grid-3">
           <select id="p-motivo">
             <option value="Avería">Avería</option>
             <option value="Mantenimiento">Mantenimiento</option>
             <option value="Chapa">Chapa</option>
-            <option value="M. Servicio">M. Servicio</option>
+            <option value="Garantía">Garantía</option>
           </select>
-          <input id="p-tarifa" placeholder="Tarifa">
-          <input id="p-cp" placeholder="C. Postal">
+          <input id="p-tarifa" placeholder="Tarifa (€)">
+          <input id="p-cp" placeholder="Código Postal">
         </div>
         <div style="margin-top: 15px;">
           <label>📸 Fotos de daños actuales (Cámara)</label>
@@ -74,47 +93,60 @@
       </div>
 
       <div class="section">
-        <h3>👤 DATOS CLIENTE</h3>
+        <h3>👤 DATOS DEL CONDUCTOR</h3>
         <div class="grid-2">
-          <input id="p-nom" placeholder="Nombre completo">
-          <input id="p-dni" placeholder="DNI">
+          <input id="p-nom" placeholder="Nombre y Apellidos">
+          <input id="p-dni" placeholder="DNI / NIE / Pasaporte">
         </div>
         <div class="grid-2">
-          <input id="p-tel" placeholder="Teléfono">
-          <input id="p-email" type="email" placeholder="Correo electrónico (para envío)">
+          <input id="p-tel" placeholder="Teléfono de contacto">
+          <label>F. Nacimiento <input id="p-fnac" type="date"></label>
         </div>
         <div class="grid-3">
-          <label>F. Carnet <input id="p-fcarnet" type="date"></label>
+          <label>Exp. Carnet <input id="p-fcarnet" type="date"></label>
           <label>Caducidad <input id="p-fcad" type="date"></label>
           <label>F. Aprox. Dev <input id="p-faprox" type="date"></label>
         </div>
         
         <div class="signature-container">
-          <label style="display:block; margin-bottom:5px; text-align:left;">✍️ Firma del Cliente</label>
+          <label style="display:block; margin-bottom:5px; text-align:left; font-weight:bold;">✍️ Firma del Cliente</label>
           <canvas id="signature-pad"></canvas>
-          <button type="button" class="btn-clear" onclick="clearSignature()">Limpiar Firma</button>
+          <button type="button" class="btn-clear" onclick="clearSignature()">Borrar y repetir firma</button>
         </div>
 
-        <textarea id="p-obs" placeholder="Observaciones..." style="width:100%; margin-top:10px;"></textarea>
+        <textarea id="p-obs" placeholder="Otras observaciones..." style="width:100%; margin-top:15px; height:60px;"></textarea>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button class="btn-main" id="btn-salida" onclick="finalizarSalida('print')">GRABAR E IMPRIMIR</button>
-        <button class="btn-main" id="btn-correo" style="background:#6f42c1;" onclick="finalizarSalida('email')">GRABAR Y ENVIAR</button>
-      </div>
-      <div id="upload-status" class="upload-info" style="display:none;">Subiendo archivos y firma... Espere.</div>
+      <button class="btn-main" id="btn-salida" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR CONTRATO</button>
+      <div id="upload-status" class="upload-info" style="display:none; text-align:center;">⏳ Subiendo firma y fotos... Por favor, espere.</div>
     </div>
 
     <div id="tab-entrada" style="display:none">
       <div class="section">
-        <h3>🏁 DEVOLUCIÓN</h3>
-        <label>Vehículo a recibir</label>
-        <select id="d-veh-select" style="font-size:18px; height:45px; margin-bottom:15px;"></select>
-        <div class="grid-2">
-          <input id="d-kms" type="number" placeholder="KMs Entrada">
-          <input id="d-comb" placeholder="Combustible Entrada">
+        <h3>🏁 RECEPCIÓN DE VEHÍCULO</h3>
+        <label>Seleccionar coche devuelto</label>
+        <select id="d-veh-select" onchange="verEstadoSalida()" style="font-size:18px; height:45px; margin-bottom:15px;"></select>
+        
+        <div id="comparativa-salida">
+          <p><strong>Estado al salir:</strong> <span id="info-kms-salida"></span> KMs</p>
+          <p><strong>Fotos de salida:</strong></p>
+          <div id="fotos-salida-contenedor" style="display:flex; gap:5px; overflow-x:auto; padding-bottom:5px;"></div>
         </div>
-        <button class="btn-main" style="background:#0056b3; margin-top:20px;" onclick="finalizarEntrada()">REGISTRAR ENTRADA Y LIBERAR</button>
+
+        <div class="grid-2">
+          <div>
+            <label>KMs Entrada</label>
+            <input id="d-kms" type="number" placeholder="KMs actuales">
+          </div>
+          <div>
+            <label>Combustible Entrada</label>
+            <input id="d-comb" placeholder="Nivel combustible">
+          </div>
+        </div>
+        
+        <textarea id="d-danos" placeholder="Notas de nuevos daños..." style="width:100%; height:60px; margin-top:10px;"></textarea>
+        
+        <button class="btn-main" style="background:#0056b3; margin-top:20px;" onclick="finalizarEntrada()">REGISTRAR DEVOLUCIÓN Y LIBERAR</button>
       </div>
     </div>
   </div>

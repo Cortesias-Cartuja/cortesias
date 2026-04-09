@@ -94,7 +94,7 @@ function autoRellenarCoche() {
     }
 }
 
-// 5. COMPARATIVA EN DEVOLUCIÓN
+// 5. COMPARATIVA EN DEVOLUCIÓN (MUESTRA DATOS COMPLETOS)
 async function verEstadoSalida() {
     const idCoche = document.getElementById('d-veh-select').value;
     const cont = document.getElementById('comparativa-salida');
@@ -107,12 +107,27 @@ async function verEstadoSalida() {
         if (data) {
             const contrato = Object.values(data)[0];
             cont.style.display = 'block';
-            document.getElementById('info-kms-salida').innerText = contrato.kms;
+            
+            // Inyectamos la información completa en el cuadro de comparativa
+            cont.innerHTML = `
+                <div style="border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;">
+                    <h4 style="margin:0; color:#002e63;">📌 DATOS DE LA ENTREGA</h4>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+                    <p><strong>Cliente:</strong> ${contrato.nombre}</p>
+                    <p><strong>DNI:</strong> ${contrato.dni}</p>
+                    <p><strong>F. Salida:</strong> ${contrato.fechaSalida}</p>
+                    <p><strong>OR / ASPV:</strong> ${contrato.or}</p>
+                    <p><strong>KMs al salir:</strong> <span id="info-kms-salida">${contrato.kms}</span></p>
+                </div>
+                <p style="margin: 10px 0 5px 0;"><strong>Fotos de estado inicial:</strong></p>
+                <div id="fotos-salida-contenedor" style="display:flex; gap:5px; overflow-x:auto; padding-bottom: 10px;"></div>
+            `;
+
             const contFotos = document.getElementById('fotos-salida-contenedor');
-            contFotos.innerHTML = "";
             if (contrato.fotos) {
                 contrato.fotos.forEach(url => {
-                    contFotos.innerHTML += `<img src="${url}" class="thumb-salida" onclick="window.open('${url}')">`;
+                    contFotos.innerHTML += `<img src="${url}" class="thumb-salida" style="height:80px; border-radius:4px; border:1px solid #ccc; cursor:pointer;" onclick="window.open('${url}')">`;
                 });
             }
         }
@@ -128,12 +143,10 @@ async function finalizarSalida() {
     status.style.display = 'block';
 
     try {
-        // Subir Firma
         const firmaBlob = await new Promise(res => canvas.toBlob(res, 'image/png'));
         const firmaRef = storage.ref(`firmas/${Date.now()}.png`);
         const firmaUrl = await (await firmaRef.put(firmaBlob)).ref.getDownloadURL();
 
-        // Subir Fotos Daños
         const fotosInput = document.getElementById('p-fotos');
         let fotosUrls = [];
         for (let file of fotosInput.files) {
@@ -142,7 +155,6 @@ async function finalizarSalida() {
             fotosUrls.push(url);
         }
 
-        // Crear Contrato
         const contrato = {
             matricula: listaCochesGlobal[idCoche].matricula,
             modelo: document.getElementById('p-mod').value,
@@ -153,13 +165,14 @@ async function finalizarSalida() {
             or: document.getElementById('p-or').value,
             firma: firmaUrl,
             fotos: fotosUrls,
-            fechaSalida: new Date().toLocaleString()
+            fechaSalida: new Date().toLocaleString(),
+            estadoContrato: "Activo"
         };
 
         await db.ref('contratos').push(contrato);
         await db.ref('coches/' + idCoche).update({ estado: 'Prestado' });
 
-        alert("Contrato Guardado Correctamente");
+        alert("Contrato de Salida Guardado Correctamente");
         window.print();
         location.reload();
     } catch (e) {
@@ -169,21 +182,44 @@ async function finalizarSalida() {
     }
 }
 
-// 7. FINALIZAR ENTRADA (DEVOLUCIÓN)
+// 7. FINALIZAR ENTRADA (DEVOLUCIÓN COMPLETA)
 async function finalizarEntrada() {
     const idCoche = document.getElementById('d-veh-select').value;
     const kmsEntrada = document.getElementById('d-kms').value;
-    if (!idCoche || !kmsEntrada) return alert("Introduce KMs de entrada");
+    const combEntrada = document.getElementById('d-comb').value;
+    const notasDanos = document.getElementById('d-danos').value;
+
+    if (!idCoche || !kmsEntrada) return alert("Introduce los KMs de entrada");
+
+    const fechaEntrada = new Date().toLocaleString();
 
     try {
+        // Actualizar el estado del coche
         await db.ref('coches/' + idCoche).update({
             estado: 'Disponible',
             kms: kmsEntrada,
-            combustible: document.getElementById('d-comb').value
+            combustible: combEntrada
         });
-        alert("Vehículo recibido y liberado");
+
+        // Buscar el contrato activo para cerrarlo con los datos de entrada
+        const matricula = listaCochesGlobal[idCoche].matricula;
+        const snap = await db.ref('contratos').orderByChild('matricula').equalTo(matricula).limitToLast(1).once('value');
+        
+        if (snap.exists()) {
+            const key = Object.keys(snap.val())[0];
+            await db.ref('contratos/' + key).update({
+                fechaEntrada: fechaEntrada,
+                kmsEntrada: kmsEntrada,
+                combEntrada: combEntrada,
+                danosEntrada: notasDanos,
+                estadoContrato: "Cerrado"
+            });
+        }
+
+        alert(`Vehículo Recogido\nFecha: ${fechaEntrada}\nKMs: ${kmsEntrada}`);
+        window.print();
         location.reload();
     } catch (e) {
-        alert("Error al recibir");
+        alert("Error al procesar la devolución: " + e.message);
     }
 }

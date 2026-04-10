@@ -1,24 +1,96 @@
+/* --- ESTILOS VISUALES (Lo que ves en pantalla) --- */
 body { 
-    font-family: 'Segoe UI', sans-serif; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     background: #f4f6f9; 
     margin: 0; 
     padding: 10px 20px; 
 }
+
 .form-container { 
-    max-width: 800px; 
+    max-width: 850px; 
     margin: 20px auto; 
     background: white; 
     padding: 30px; 
     border-radius: 12px; 
     box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
 }
+
+.header-img { margin-bottom: 20px; text-align: center; }
+
 .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
 .btn-tab { padding: 12px 20px; border: none; cursor: pointer; font-weight: bold; flex: 1; border-radius: 5px; background: #e9ecef; color: #495057; }
 .btn-tab.active { background: #002e63; color: white; }
-.section { border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+
+.section { border: 1px solid #dee2e6; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fff; }
+h3 { margin-top: 0; font-size: 16px; color: #002e63; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 10px; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
-input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
-.btn-main { width: 100%; padding: 18px; background: #28a745; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-.btn-main:disabled { background: #ccc; }
-label { font-size: 11px; color: #6c757d; font-weight: bold; margin-bottom: 4px; display: block; }
+
+input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 14px; background: #fdfdfd; }
+label { font-size: 11px; color: #6c757d; font-weight: bold; margin-bottom: 4px; display: block; text-transform: uppercase; }
+
+.btn-main { width: 100%; padding: 18px; background: #28a745; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+.btn-main:hover { background: #218838; }
+
+/* Estilos para el canvas de firma */
+#signature-pad { border: 1px dashed #ccc; background: #f9f9f9; border-radius: 8px; width: 100%; height: 180px; }
+
+/* --- REGLAS DE IMPRESIÓN (Lo que sale en papel) --- */
+@media print {
+    /* 1. Reset de página para evitar saltos locos */
+    @page { size: A4; margin: 1cm; }
+    
+    body { background: white; padding: 0; margin: 0; }
+    .form-container { width: 100%; max-width: 100%; box-shadow: none; margin: 0; padding: 0; }
+
+    /* 2. Ocultar elementos de navegación y botones */
+    .tabs, .btn-main, .btn-clear, a[href="admin.html"], .upload-info, #upload-status, #btn-salida {
+        display: none !important;
+    }
+
+    /* 3. Asegurar que solo se imprima la pestaña activa (Salida) */
+    #tab-entrada { display: none !important; }
+    #tab-salida { display: block !important; }
+
+    /* 4. Estilizar inputs para que parezcan texto impreso */
+    input, select, textarea {
+        border: none !important;
+        padding: 5px 0 !important;
+        background: transparent !important;
+        font-size: 13px !important;
+        font-weight: bold;
+    }
+
+    /* 5. Ajustar secciones para que quepan en una hoja */
+    .section {
+        border: none !important;
+        border-bottom: 1px solid #000 !important;
+        margin-bottom: 10px !important;
+        padding: 5px 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .grid-3, .grid-2 {
+        gap: 10px !important;
+        margin-bottom: 5px !important;
+    }
+
+    h3 {
+        font-size: 14px !important;
+        margin-bottom: 5px !important;
+        background: #eee !important;
+        padding: 5px !important;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* 6. Firma: Tamaño fijo para que no se mueva */
+    #signature-pad {
+        border: 1px solid #000 !important;
+        height: 120px !important;
+        width: 300px !important;
+        display: block;
+    }
+
+    label { color: #000 !important; font-size: 10px !important; }
+}

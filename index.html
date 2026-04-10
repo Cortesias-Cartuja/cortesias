@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Gestión de Cortesías</title>
+  <title>Control de Flota - Salidas y Entradas</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -25,7 +25,7 @@
 
     <div id="contrato-imprimible">
       <div class="section">
-        <h3>DATOS DEL VEHÍCULO DE CORTESÍA</h3>
+        <h3>🚗 DATOS DEL VEHÍCULO DE CORTESÍA</h3>
         <div class="grid-3">
           <div>
             <label>Vehículo (Matrícula)</label>
@@ -40,7 +40,7 @@
       </div>
 
       <div class="section">
-        <h3>DATOS DEL CONDUCTOR Y CLIENTE</h3>
+        <h3>👤 DATOS DEL CONDUCTOR Y CLIENTE</h3>
         <div class="grid-3">
           <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
           <div><label>DNI / NIE / PAS.</label><input id="p-dni"></div>
@@ -55,18 +55,18 @@
 
       <div class="grid-2-col">
         <div class="sub-section" id="col-salida">
-          <h4 style="background: #e1effe; color: #1e429f;">ESTADO EN LA ENTREGA</h4>
-          <div class="data-row"><label>Fecha/Hora Salida:</label><input id="p-f-salida"></div>
-          <div class="data-row"><label>KMs de Salida:</label><input id="p-kms"></div>
+          <h4 style="background: #e1effe; color: #1e429f;">ESTADO EN LA ENTREGA (SALIDA)</h4>
+          <div class="data-row"><label>Fecha y Hora Salida:</label><input id="p-f-salida" readonly placeholder="Se grabará al emitir"></div>
+          <div class="data-row"><label>KMs de Salida:</label><input id="p-kms" type="number"></div>
           <div class="data-row"><label>Combustible Salida:</label><input id="p-comb"></div>
           <div class="data-row"><label>Observaciones/Daños:</label><textarea id="p-obs"></textarea></div>
           <div class="space-firma"><p>FIRMA ENTREGA CLIENTE</p></div>
         </div>
 
         <div class="sub-section" id="col-entrada">
-          <h4 style="background: #def7ec; color: #03543f;">ESTADO EN LA RECOGIDA</h4>
-          <div class="data-row"><label>Fecha/Hora Entrada:</label><input id="d-f-entrada"></div>
-          <div class="data-row"><label>KMs de Entrada:</label><input id="d-kms"></div>
+          <h4 style="background: #def7ec; color: #03543f;">ESTADO EN LA RECOGIDA (ENTRADA)</h4>
+          <div class="data-row"><label>Fecha y Hora Entrada:</label><input id="d-f-entrada" readonly placeholder="Se grabará al recoger"></div>
+          <div class="data-row"><label>KMs de Entrada:</label><input id="d-kms" type="number"></div>
           <div class="data-row"><label>Combustible Entrada:</label><input id="d-comb"></div>
           <div class="data-row"><label>Nuevos Daños/Notas:</label><textarea id="d-danos"></textarea></div>
           <div class="space-firma"><p>FIRMA RECOGIDA CLIENTE</p></div>
@@ -76,14 +76,13 @@
 
     <div class="no-print action-bar" style="margin-top:20px;">
       <div id="action-salida">
-        <button class="btn-main" onclick="finalizarSalida()">REGISTRAR SALIDA E IMPRIMIR</button>
+        <button class="btn-main" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR SALIDA</button>
       </div>
       
       <div id="action-entrada" style="display:none; background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <label style="font-size: 14px; margin-bottom: 10px; color: #1e293b;">SELECCIONAR COCHE QUE LLEGA AL TALLER:</label>
         <select id="d-veh-select" onchange="verEstadoSalida()" style="font-weight: bold; border: 2px solid #3b82f6;"></select>
-        <p style="font-size: 11px; color: #64748b; margin: 10px 0;">* Al seleccionar, se volcarán los datos de salida a la izquierda automáticamente.</p>
-        <button class="btn-main btn-blue" onclick="finalizarEntrada()">FINALIZAR RECOGIDA E IMPRIMIR</button>
+        <button class="btn-main btn-blue" onclick="finalizarEntrada()">✅ FINALIZAR RECOGIDA E IMPRIMIR</button>
       </div>
     </div>
   </div>

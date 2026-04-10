@@ -1,46 +1,42 @@
 * { box-sizing: border-box; }
-body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f1f5f9; padding: 10px; margin: 0; }
+body { font-family: sans-serif; background: #f1f5f9; padding: 10px; margin: 0; }
+.form-container { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; }
+.header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.section { border-bottom: 2px solid #1e3a8a; margin-bottom: 12px; padding-bottom: 8px; }
+h3 { margin: 0 0 8px 0; font-size: 12px; color: #1e3a8a; text-transform: uppercase; }
+h4 { margin: -10px -10px 10px -10px; font-size: 10px; text-align: center; padding: 6px; font-weight: bold; border-bottom: 1px solid #ccc; }
 
-.form-container { 
-  max-width: 880px; 
-  margin: 0 auto; 
-  background: white; 
-  padding: 25px; 
-  border-radius: 8px; 
-  box-shadow: 0 10px 15px rgba(0,0,0,0.1); 
-}
-
-.header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.btn-admin { text-decoration: none; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; background: white; font-size: 12px; font-weight: 700; }
-
-.section { border-bottom: 2px solid #1e3a8a; margin-bottom: 15px; padding-bottom: 10px; }
-h3 { margin: 0 0 10px 0; font-size: 13px; color: #1e3a8a; text-transform: uppercase; }
-h4 { margin: -10px -10px 10px -10px; font-size: 11px; text-align: center; padding: 8px; border-radius: 4px 4px 0 0; font-weight: 800; border-bottom: 1px solid #ccc; }
-
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 8px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-label { display: block; font-size: 9px; font-weight: 700; color: #334155; margin-bottom: 2px; text-transform: uppercase; }
-input, select, textarea { width: 100%; border: 1px solid #cbd5e1; padding: 7px; font-size: 12px; border-radius: 4px; background: #f8fafc; }
-textarea { height: 50px; resize: none; }
+.grid-tarifas { display: flex; justify-content: space-around; background: #f8fafc; padding: 10px; border: 1px solid #cbd5e1; border-radius: 4px; }
+.radio-label { font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-.sub-section { border: 1px solid #334155; padding: 10px; border-radius: 5px; background: #fff; }
-.data-row { margin-bottom: 6px; }
-.space-firma { margin-top: 10px; border: 1px dashed #94a3b8; height: 85px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; }
+label { display: block; font-size: 9px; font-weight: bold; color: #334155; margin-bottom: 2px; }
+input, select, textarea { width: 100%; border: 1px solid #cbd5e1; padding: 6px; font-size: 12px; border-radius: 4px; }
+textarea { height: 45px; }
+
+.sub-section { border: 1px solid #334155; padding: 10px; border-radius: 5px; }
+.data-row { margin-bottom: 5px; }
+.space-firma { margin-top: 10px; border: 1px dashed #aaa; height: 80px; display: flex; align-items: center; justify-content: center; background: #f8fafc; }
 .space-firma p { font-size: 9px; color: #64748b; font-weight: bold; }
 
-.btn-main { width: 100%; padding: 14px; background: #059669; color: white; border: none; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 6px; }
+.btn-main { width: 100%; padding: 14px; background: #059669; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; margin-top: 10px; }
 .btn-blue { background: #2563eb; }
-.btn-tab { padding: 10px 20px; border: none; cursor: pointer; background: #e2e8f0; font-weight: 700; color: #475569; }
+.btn-tab { padding: 10px; border: none; cursor: pointer; background: #e2e8f0; font-weight: bold; }
 .btn-tab.active { background: #1e3a8a; color: white; }
+.selector-recogida { background: #eff6ff; padding: 10px; border: 1px solid #bfdbfe; margin-top: 10px; border-radius: 6px; }
 
 @media print {
-  @page { size: A4; margin: 0.6cm; }
+  @page { size: A4; margin: 0.5cm; }
   .no-print { display: none !important; }
   .only-print { display: block !important; }
   body { background: white; padding: 0; }
-  .form-container { width: 100%; border: none; padding: 0; box-shadow: none; }
-  input, textarea { border: none !important; border-bottom: 1px solid #eee !important; background: none !important; padding: 2px !important; }
+  .form-container { width: 100%; border: none; padding: 0; }
+  input, select, textarea { border: none !important; border-bottom: 1px solid #eee !important; background: none !important; }
   .sub-section { border: 1px solid #000 !important; }
+  .radio-label input { display: none; } /* Opcional: ocultar el circulito al imprimir */
 }
 .only-print { display: none; }

@@ -1,5 +1,5 @@
 * { box-sizing: border-box; }
-body { font-family: 'Segoe UI', Helvetica, sans-serif; background: #f1f5f9; padding: 10px; margin: 0; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f1f5f9; padding: 10px; margin: 0; }
 
 .form-container { 
   max-width: 880px; 
@@ -7,7 +7,7 @@ body { font-family: 'Segoe UI', Helvetica, sans-serif; background: #f1f5f9; padd
   background: white; 
   padding: 25px; 
   border-radius: 8px; 
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+  box-shadow: 0 10px 15px rgba(0,0,0,0.1); 
 }
 
 .header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -15,7 +15,7 @@ body { font-family: 'Segoe UI', Helvetica, sans-serif; background: #f1f5f9; padd
 
 .section { border-bottom: 2px solid #1e3a8a; margin-bottom: 15px; padding-bottom: 10px; }
 h3 { margin: 0 0 10px 0; font-size: 13px; color: #1e3a8a; text-transform: uppercase; }
-h4 { margin: -10px -10px 10px -10px; font-size: 11px; text-align: center; padding: 8px; border-radius: 4px 4px 0 0; font-weight: 800; }
+h4 { margin: -10px -10px 10px -10px; font-size: 11px; text-align: center; padding: 8px; border-radius: 4px 4px 0 0; font-weight: 800; border-bottom: 1px solid #ccc; }
 
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px; }
 .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -29,7 +29,7 @@ textarea { height: 50px; resize: none; }
 .space-firma { margin-top: 10px; border: 1px dashed #94a3b8; height: 85px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; }
 .space-firma p { font-size: 9px; color: #64748b; font-weight: bold; }
 
-.btn-main { width: 100%; padding: 14px; background: #059669; color: white; border: none; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+.btn-main { width: 100%; padding: 14px; background: #059669; color: white; border: none; font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 6px; }
 .btn-blue { background: #2563eb; }
 .btn-tab { padding: 10px 20px; border: none; cursor: pointer; background: #e2e8f0; font-weight: 700; color: #475569; }
 .btn-tab.active { background: #1e3a8a; color: white; }
@@ -40,7 +40,7 @@ textarea { height: 50px; resize: none; }
   .only-print { display: block !important; }
   body { background: white; padding: 0; }
   .form-container { width: 100%; border: none; padding: 0; box-shadow: none; }
-  input, textarea { border: none !important; border-bottom: 1px solid #e2e8f0 !important; background: none !important; padding: 2px !important; }
+  input, textarea { border: none !important; border-bottom: 1px solid #eee !important; background: none !important; padding: 2px !important; }
   .sub-section { border: 1px solid #000 !important; }
 }
 .only-print { display: none; }

@@ -2,260 +2,119 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Gestión Total - Taller</title>
+  <title>Admin - Gestión de Flota</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-  <style>
-    body { background: #f0f2f5; font-family: sans-serif; }
-    .admin-container { max-width: 1200px; margin: 20px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; }
-    .bg-blue { background: #002e63; }
-    .bg-green { background: #28a745; }
-    .bg-orange { background: #fd7e14; }
-    .bg-gray { background: #6c757d; }
-    
-    .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-top: 30px; padding-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-    th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
-    th { background: #f8f9fa; color: #333; position: sticky; top: 0; }
-    
-    .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-    .disponible { background: #d4edda; color: #155724; }
-    .prestado { background: #f8d7da; color: #721c24; }
-    .baja { background: #e2e3e5; color: #383d41; }
-    
-    .alerta-roja { color: #dc3545; font-weight: bold; animation: blink 2s infinite; }
-    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-    .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; margin-right: 5px; }
-    .btn-orange { background: #fd7e14; color: white; }
-    .btn-green { background: #28a745; color: white; }
-    .btn-red { background: #ff4d4d; color: white; }
-    .btn-excel { background: #1d6f42; color: white; padding: 8px 15px; border-radius: 5px; border: none; cursor: pointer; }
-    
-    .scroll-table { overflow-x: auto; max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; }
-    .search-box { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
-  </style>
 </head>
 <body>
-
-<div class="admin-container">
-  <div style="display:flex; justify-content: space-between; align-items:center;">
-    <h1>📊 Panel de Gestión Total</h1>
-    <a href="index.html" class="btn-tab active" style="text-decoration:none; background:#002e63; color:white; padding:10px 20px; border-radius:5px;">Volver al Formulario</a>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card bg-blue"><small>Activos</small><h2 id="stat-total">0</h2></div>
-    <div class="stat-card bg-green"><small>Disponibles</small><h2 id="stat-disp">0</h2></div>
-    <div class="stat-card bg-orange"><small>En Préstamo</small><h2 id="stat-pres">0</h2></div>
-    <div class="stat-card bg-gray"><small>Bajas</small><h2 id="stat-bajas">0</h2></div>
-  </div>
-
-  <div class="section-header">
-    <h3>🚗 Gestión de Vehículos</h3>
-  </div>
-  <div class="section" style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
-    <div class="grid-3" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
-      <input id="new-mat" placeholder="Matrícula" style="padding:8px;">
-      <input id="new-mod" placeholder="Marca / Modelo" style="padding:8px;">
-      <input id="new-kms" type="number" placeholder="KMs Iniciales" style="padding:8px;">
+  <div class="form-container">
+    <div class="header-nav no-print">
+      <a href="index.html" class="btn-admin">⬅️ VOLVER AL PANEL</a>
+      <h2>GESTIÓN DE VEHÍCULOS</h2>
     </div>
-    <div style="margin-top:10px; display:flex; gap:10px;">
-      <input id="new-comb" placeholder="Combustible (ej: 100%)" style="padding:8px; flex-grow:1;">
-      <button onclick="agregarCoche()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">AÑADIR NUEVO VEHÍCULO</button>
+
+    <div class="sub-section">
+      <h4 id="form-title">AÑADIR NUEVO VEHÍCULO</h4>
+      <input type="hidden" id="edit-id">
+      <div class="grid-3">
+        <div><label>Matrícula</label><input id="adm-mat"></div>
+        <div><label>Modelo</label><input id="adm-mod"></div>
+        <div><label>KMs Actuales</label><input id="adm-kms" type="number"></div>
+      </div>
+      <div class="grid-3">
+        <div><label>Compañía Seguro</label><input id="adm-cia"></div>
+        <div><label>Nº Póliza</label><input id="adm-pol"></div>
+        <div><label>Tel. Asistencia</label><input id="adm-tel"></div>
+      </div>
+      <button class="btn-main" id="btn-guardar" onclick="guardarCoche()">💾 GUARDAR VEHÍCULO</button>
+      <button class="btn-main" id="btn-cancelar" style="display:none; background:#666;" onclick="cancelarEdicion()">CANCELAR</button>
+    </div>
+
+    <div class="section" style="margin-top:20px;">
+      <h3>LISTADO DE FLOTA</h3>
+      <table id="tabla-coches" style="width:100%; font-size:12px; border-collapse: collapse;">
+        <thead>
+          <tr style="background:#eee;">
+            <th>Matrícula</th>
+            <th>Modelo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="lista-body"></tbody>
+      </table>
     </div>
   </div>
 
-  <h4>Vehículos en Flota Activa</h4>
-  <div class="scroll-table">
-    <table>
-      <thead>
-        <tr>
-          <th>Matrícula</th>
-          <th>Modelo</th>
-          <th>KMs Actuales</th>
-          <th>Estado</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody id="lista-vehiculos"></tbody>
-    </table>
-  </div>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
+      authDomain: "cortesias-4235e.firebaseapp.com",
+      databaseURL: "https://cortesias-4235e-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "cortesias-4235e",
+      storageBucket: "cortesias-4235e.firebasestorage.app",
+      messagingSenderId: "45340224860",
+      appId: "1:45340224860:web:69c15fc56fc5a04ab76599"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-  <h4>📁 Histórico de Bajas</h4>
-  <div class="scroll-table" style="opacity: 0.8;">
-    <table>
-      <tbody id="lista-bajas"></tbody>
-    </table>
-  </div>
+    function guardarCoche() {
+      const id = document.getElementById('edit-id').value;
+      const coche = {
+        matricula: document.getElementById('adm-mat').value,
+        modelo: document.getElementById('adm-mod').value,
+        kms: document.getElementById('adm-kms').value,
+        seguroCia: document.getElementById('adm-cia').value,
+        seguroPoliza: document.getElementById('adm-pol').value,
+        seguroTel: document.getElementById('adm-tel').value,
+        estado: "Disponible"
+      };
 
-  <div class="section-header">
-    <h3>📋 Historial de Préstamos</h3>
-    <button class="btn-excel" onclick="exportarExcel()">📥 Descargar Excel (CSV)</button>
-  </div>
-  
-  <input type="text" id="historialSearch" class="search-box" placeholder="Buscar por matrícula, cliente o DNI..." onkeyup="filtrarHistorial()">
-
-  <div class="scroll-table">
-    <table id="tablaHistorial">
-      <thead>
-        <tr>
-          <th>Fecha Salida</th>
-          <th>Vehículo</th>
-          <th>Cliente</th>
-          <th>OR / ASPV</th>
-          <th>Tiempo fuera</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody id="lista-contratos"></tbody>
-    </table>
-  </div>
-</div>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
-    authDomain: "cortesias-4235e.firebaseapp.com",
-    databaseURL: "https://cortesias-4235e-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "cortesias-4235e",
-    storageBucket: "cortesias-4235e.firebasestorage.app",
-    messagingSenderId: "45340224860",
-    appId: "1:45340224860:web:69c15fc56fc5a04ab76599"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // Escuchar Vehículos
-  db.ref('coches').on('value', snapshot => {
-    const coches = snapshot.val() || {};
-    renderVehiculos(coches);
-    renderStats(coches);
-  });
-
-  // Escuchar Contratos
-  db.ref('contratos').on('value', snapshot => {
-    const contratos = snapshot.val() || {};
-    renderContratos(contratos);
-  });
-
-  function renderStats(coches) {
-    const vals = Object.values(coches);
-    document.getElementById('stat-total').innerText = vals.filter(c => c.estado !== 'Baja').length;
-    document.getElementById('stat-disp').innerText = vals.filter(c => c.estado === 'Disponible').length;
-    document.getElementById('stat-pres').innerText = vals.filter(c => c.estado === 'Prestado').length;
-    document.getElementById('stat-bajas').innerText = vals.filter(c => c.estado === 'Baja').length;
-  }
-
-  function renderVehiculos(coches) {
-    const lista = document.getElementById('lista-vehiculos');
-    const listaBajas = document.getElementById('lista-bajas');
-    lista.innerHTML = "";
-    listaBajas.innerHTML = "";
-
-    Object.keys(coches).forEach(id => {
-      const c = coches[id];
-      const fila = `
-        <tr>
-          <td><b>${c.matricula}</b></td>
-          <td>${c.modelo}</td>
-          <td>${c.kms} km</td>
-          <td><span class="status-badge ${c.estado.toLowerCase()}">${c.estado}</span></td>
-          <td>
-            ${c.estado !== 'Baja' 
-              ? `<button class="btn-action btn-orange" onclick="cambiarEstado('${id}', 'Baja')">Dar de Baja</button>`
-              : `<button class="btn-action btn-green" onclick="cambiarEstado('${id}', 'Disponible')">Activar</button>`
-            }
-            <button class="btn-action btn-red" onclick="eliminarDefinitivo('${id}')">Eliminar</button>
-          </td>
-        </tr>
-      `;
-      if (c.estado === 'Baja') listaBajas.innerHTML += fila;
-      else lista.innerHTML += fila;
-    });
-  }
-
-  function renderContratos(contratos) {
-    const lista = document.getElementById('lista-contratos');
-    lista.innerHTML = "";
-    Object.values(contratos).reverse().forEach(c => {
-      const infoTiempo = calcularDiferenciaDias(c.fechaSalida, c.estadoContrato);
-      lista.innerHTML += `
-        <tr>
-          <td>${c.fechaSalida}</td>
-          <td><b>${c.matricula}</b></td>
-          <td>${c.nombre} <br><small>${c.tel}</small></td>
-          <td>${c.or}</td>
-          <td class="${infoTiempo.alerta ? 'alerta-roja' : ''}">${infoTiempo.texto}</td>
-          <td><span class="status-badge" style="background:#eee">${c.estadoContrato || 'Finalizado'}</span></td>
-        </tr>
-      `;
-    });
-  }
-
-  function calcularDiferenciaDias(fechaStr, estado) {
-    if(!fechaStr) return { texto: "---", alerta: false };
-    try {
-      const partes = fechaStr.split(",")[0].split("/");
-      const fechaSalida = new Date(partes[2], partes[1] - 1, partes[0]);
-      const hoy = new Date();
-      const diff = Math.floor((hoy - fechaSalida) / (1000 * 60 * 60 * 24));
-      
-      let alerta = (estado !== "Cerrado" && diff >= 3);
-      let texto = diff === 0 ? "Hoy" : `Hace ${diff} días`;
-      if (estado !== "Cerrado" && diff >= 3) texto += " ⚠️ REVISAR";
-      
-      return { texto: texto, alerta: alerta };
-    } catch(e) { return { texto: "---", alerta: false }; }
-  }
-
-  async function agregarCoche() {
-    const mat = document.getElementById('new-mat').value.toUpperCase().trim();
-    const mod = document.getElementById('new-mod').value.trim();
-    const kms = document.getElementById('new-kms').value;
-    const comb = document.getElementById('new-comb').value;
-    if(!mat || !mod) return alert("Matrícula y Modelo son obligatorios");
-    await db.ref('coches').push({
-      matricula: mat, modelo: mod, kms: kms || 0, combustible: comb || "100%", estado: "Disponible"
-    });
-    document.getElementById('new-mat').value = ""; document.getElementById('new-mod').value = "";
-  }
-
-  function cambiarEstado(id, nuevoEstado) {
-    db.ref('coches/' + id).update({ estado: nuevoEstado });
-  }
-
-  function eliminarDefinitivo(id) {
-    if(confirm("¿Eliminar para siempre de la base de datos?")) db.ref('coches/' + id).remove();
-  }
-
-  function filtrarHistorial() {
-    const input = document.getElementById("historialSearch").value.toUpperCase();
-    const rows = document.getElementById("lista-contratos").getElementsByTagName("tr");
-    for (let i = 0; i < rows.length; i++) {
-      rows[i].style.display = rows[i].innerText.toUpperCase().includes(input) ? "" : "none";
+      if (id) {
+        db.ref('coches/' + id).update(coche).then(limpiar);
+      } else {
+        db.ref('coches').push(coche).then(limpiar);
+      }
     }
-  }
 
-  function exportarExcel() {
-    let csv = "Fecha Salida;Matricula;Cliente;Telefono;OR;Kms Salida;Estado\n";
-    db.ref('contratos').once('value', snapshot => {
-      const data = snapshot.val();
-      Object.values(data).forEach(c => {
-        csv += `${c.fechaSalida};${c.matricula};${c.nombre};${c.tel};${c.or};${c.kms};${c.estadoContrato || 'Finalizado'}\n`;
+    db.ref('coches').on('value', snap => {
+      const body = document.getElementById('lista-body');
+      body.innerHTML = "";
+      snap.forEach(child => {
+        const c = child.val();
+        body.innerHTML += `
+          <tr style="border-bottom:1px solid #ddd;">
+            <td>${c.matricula}</td>
+            <td>${c.modelo}</td>
+            <td><strong>${c.estado}</strong></td>
+            <td>
+              <button onclick="editarCoche('${child.key}')">✏️</button>
+              <button onclick="eliminarCoche('${child.key}')">🗑️</button>
+            </td>
+          </tr>`;
       });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.setAttribute("download", "historial_prestamos.csv");
-      link.click();
     });
-  }
-</script>
+
+    function editarCoche(id) {
+      db.ref('coches/' + id).once('value', snap => {
+        const c = snap.val();
+        document.getElementById('edit-id').value = id;
+        document.getElementById('adm-mat').value = c.matricula;
+        document.getElementById('adm-mod').value = c.modelo;
+        document.getElementById('adm-kms').value = c.kms;
+        document.getElementById('adm-cia').value = c.seguroCia || "";
+        document.getElementById('adm-pol').value = c.seguroPoliza || "";
+        document.getElementById('adm-tel').value = c.seguroTel || "";
+        document.getElementById('form-title').innerText = "EDITANDO VEHÍCULO";
+        document.getElementById('btn-cancelar').style.display = "inline-block";
+      });
+    }
+
+    function eliminarCoche(id) { if(confirm("¿Eliminar coche?")) db.ref('coches/' + id).remove(); }
+    function limpiar() { location.reload(); }
+    function cancelarEdicion() { location.reload(); }
+  </script>
 </body>
 </html>

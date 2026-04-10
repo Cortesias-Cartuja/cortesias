@@ -1,106 +1,179 @@
-/* --- ESTILOS VISUALES (Pantalla) --- */
+/* --- ESTILOS GENERALES (PANTALLA) --- */
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     background: #f4f6f9; 
     margin: 0; 
-    padding: 10px 20px; 
+    padding: 10px; 
 }
 
 .form-container { 
     max-width: 850px; 
-    margin: 20px auto; 
+    margin: 10px auto; 
     background: white; 
-    padding: 30px; 
+    padding: 25px; 
     border-radius: 12px; 
     box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
 }
 
-.header-img { margin-bottom: 20px; text-align: center; }
+.header-img { margin-bottom: 15px; text-align: center; }
 
-.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-.btn-tab { padding: 12px 20px; border: none; cursor: pointer; font-weight: bold; flex: 1; border-radius: 5px; background: #e9ecef; color: #495057; }
+/* Navegación por pestañas */
+.tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+.btn-tab { 
+    padding: 12px; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+    flex: 1; 
+    border-radius: 6px; 
+    background: #e9ecef; 
+    color: #495057; 
+    transition: 0.2s;
+}
 .btn-tab.active { background: #002e63; color: white; }
 
-.section { border: 1px solid #dee2e6; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fff; }
-h3 { margin-top: 0; font-size: 16px; color: #002e63; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+/* Secciones del formulario */
+.section { 
+    border: 1px solid #dee2e6; 
+    padding: 15px; 
+    border-radius: 8px; 
+    margin-bottom: 15px; 
+    background: #fff; 
+}
 
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 10px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+h3 { 
+    margin-top: 0; 
+    font-size: 15px; 
+    color: #002e63; 
+    border-bottom: 2px solid #f0f0f0; 
+    padding-bottom: 5px; 
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
 
-input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 14px; background: #fdfdfd; }
-label { font-size: 11px; color: #6c757d; font-weight: bold; margin-bottom: 4px; display: block; text-transform: uppercase; }
+/* Sistema de Rejilla (Grid) */
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
 
-.btn-main { width: 100%; padding: 18px; background: #28a745; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-.btn-main:hover { background: #218838; }
+/* Inputs y Etiquetas */
+label { 
+    font-size: 11px; 
+    color: #6c757d; 
+    font-weight: bold; 
+    margin-bottom: 4px; 
+    display: block; 
+    text-transform: uppercase; 
+}
 
-#signature-pad { border: 1px dashed #ccc; background: #f9f9f9; border-radius: 8px; width: 100%; height: 180px; }
+input, select, textarea { 
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ced4da; 
+    border-radius: 6px; 
+    box-sizing: border-box; 
+    font-size: 14px; 
+    background: #fdfdfd; 
+}
 
-.upload-info { font-size: 13px; color: #0056b3; margin-top: 10px; font-weight: bold; text-align: center; }
+input:focus, select:focus { border-color: #002e63; outline: none; background: #fff; }
 
-/* --- REGLAS DE IMPRESIÓN (Papel A4) --- */
+/* Botón Principal */
+.btn-main { 
+    width: 100%; 
+    padding: 16px; 
+    background: #28a745; 
+    color: white; 
+    border: none; 
+    font-size: 16px; 
+    font-weight: bold; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    margin-top: 10px; 
+}
+.btn-main:hover { background: #218838; transform: translateY(-1px); }
+.btn-main:active { transform: translateY(0); }
+
+/* --- AJUSTES PARA DISPOSITIVOS MÓVILES --- */
+@media (max-width: 600px) {
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .form-container { padding: 15px; }
+}
+
+/* --- REGLAS DE IMPRESIÓN (EL CORAZÓN DEL SISTEMA) --- */
 @media print {
-    @page { 
-        size: A4; 
-        margin: 0.8cm; /* Márgenes estrechos para que quepa todo */
-    }
+    @page { size: A4; margin: 0.8cm; }
     
-    /* 1. Reset General */
-    body { background: white; padding: 0; margin: 0; font-size: 10pt; }
-    .form-container { width: 100%; max-width: 100%; box-shadow: none; margin: 0; padding: 0; border: none; }
+    body { background: white; padding: 0; margin: 0; }
+    
+    /* Forzar que el contenedor ocupe todo el ancho sin sombras */
+    .form-container { 
+        width: 100% !important; 
+        max-width: 100% !important; 
+        box-shadow: none !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
 
-    /* 2. OCULTAR TODO LO INNECESARIO */
-    /* Aquí añadimos el mensaje de carga y todos los botones para que no salgan en el papel */
-    .tabs, .btn-main, .btn-clear, .btn-tab, a, 
-    .upload-info, #upload-status, #btn-salida, .header-img + div {
+    /* Ocultar elementos de interfaz web */
+    .no-print, .tabs, .btn-main, .btn-clear, .upload-info, #upload-status, a {
         display: none !important;
         visibility: hidden !important;
     }
 
-    /* 3. Forzar visibilidad de la pestaña de salida */
+    /* Asegurar que el contrato de salida sea visible */
     #tab-entrada { display: none !important; }
-    #tab-salida { display: block !important; visibility: visible !important; }
+    #tab-salida { display: block !important; }
 
-    /* 4. Estilo de secciones tipo contrato */
-    .section {
-        border: none !important;
-        border-bottom: 1px solid #ccc !important;
-        margin-bottom: 8px !important;
-        padding: 5px 0 !important;
-        page-break-inside: avoid; /* Evita que una sección se corte entre dos páginas */
+    /* Compactar secciones para ahorrar espacio vertical */
+    .section { 
+        border: none !important; 
+        border-bottom: 1px solid #000 !important; 
+        margin-bottom: 10px !important; 
+        padding: 5px 0 !important; 
+        border-radius: 0 !important;
     }
 
-    h3 {
-        font-size: 11pt !important;
-        background: #f0f0f0 !important;
-        padding: 4px !important;
-        border: 1px solid #ddd !important;
-        -webkit-print-color-adjust: exact;
+    h3 { 
+        font-size: 12pt !important; 
+        background: #f0f0f0 !important; 
+        color: black !important;
+        padding: 5px !important;
+        border: 1px solid #ccc !important;
+        -webkit-print-color-adjust: exact; 
     }
 
-    /* 5. Inputs como texto plano */
+    /* Convertir inputs en texto limpio para el papel */
     input, select, textarea {
         border: none !important;
-        background: transparent !important;
-        font-weight: bold;
         padding: 2px 0 !important;
-        font-size: 10pt !important;
+        background: transparent !important;
+        font-size: 11pt !important;
+        font-weight: bold !important;
         color: black !important;
     }
 
-    /* 6. Firma compacta */
+    label { 
+        color: #333 !important; 
+        font-size: 9pt !important; 
+        margin-bottom: 0 !important;
+    }
+
+    /* Firma pequeña para no empujar el contenido a otra página */
     #signature-pad {
         border: 1px solid #000 !important;
-        height: 100px !important; /* Más pequeña para ahorrar espacio */
-        width: 280px !important;
-        margin-top: 5px;
+        height: 100px !important;
+        width: 300px !important;
+        margin: 10px 0 !important;
     }
 
+    /* Mantener las rejillas alineadas en papel */
     .grid-3, .grid-2 {
-        display: flex !important; /* Cambiamos a flex para mejor control en papel */
-        flex-wrap: wrap;
-        gap: 15px !important;
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 20px !important;
         margin-bottom: 5px !important;
     }
-
-    label { color: #444 !important; font-size: 8pt !important; }
+    
+    .grid-3 > div, .grid-2 > div { flex: 1; }
 }

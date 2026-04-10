@@ -11,9 +11,8 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const storage = firebase.storage();
 
-// 2. LÓGICA DE FIRMA
+// 2. LÓGICA DE FIRMA (CANVAS)
 const canvas = document.getElementById('signature-pad');
 const ctx = canvas.getContext('2d');
 let drawing = false;
@@ -38,17 +37,13 @@ canvas.addEventListener('touchstart', (e) => { drawing = true; ctx.beginPath(); 
 canvas.addEventListener('mousemove', (e) => {
     if (!drawing) return;
     const pos = getPos(e);
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#000';
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+    ctx.lineTo(pos.x, pos.y); ctx.stroke();
 });
 canvas.addEventListener('touchmove', (e) => {
     if (!drawing) return;
     const pos = getPos(e);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
+    ctx.lineTo(pos.x, pos.y); ctx.stroke();
     e.preventDefault();
 });
 window.addEventListener('mouseup', () => drawing = false);
@@ -91,7 +86,7 @@ function autoRellenarCoche() {
     }
 }
 
-// 5. COMPARATIVA EN DEVOLUCIÓN (Sin fotos)
+// 5. COMPARATIVA EN DEVOLUCIÓN
 async function verEstadoSalida() {
     const idCoche = document.getElementById('d-veh-select').value;
     const cont = document.getElementById('comparativa-salida');
@@ -104,15 +99,15 @@ async function verEstadoSalida() {
             const contrato = Object.values(data)[0];
             cont.style.display = 'block';
             cont.innerHTML = `
-                <h4 style="margin:0; color:#002e63;">📌 DATOS DE ENTREGA</h4>
-                <p><strong>Cliente:</strong> ${contrato.nombre} | <strong>OR:</strong> ${contrato.or}</p>
-                <p><strong>F. Salida:</strong> ${contrato.fechaSalida} | <strong>KMs:</strong> ${contrato.kms}</p>
+                <h4 style="margin:0; color:#002e63;">📌 DATOS ENTREGA</h4>
+                <p><strong>Cliente:</strong> ${contrato.nombre} | <strong>KMs:</strong> ${contrato.kms}</p>
+                <p><strong>F. Salida:</strong> ${contrato.fechaSalida}</p>
             `;
         }
     });
 }
 
-// 6. FINALIZAR SALIDA (SOLO FIRMA)
+// 6. FINALIZAR SALIDA (SIN STORAGE - MÁS RÁPIDO)
 async function finalizarSalida() {
     const idCoche = document.getElementById('p-veh-select').value;
     if (!idCoche) return alert("Selecciona un vehículo");
@@ -120,10 +115,8 @@ async function finalizarSalida() {
     document.getElementById('upload-status').style.display = 'block';
 
     try {
-        // Guardar Firma (Sigue siendo necesaria para el contrato)
-        const firmaBlob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        const firmaRef = storage.ref(`firmas/${Date.now()}.png`);
-        const firmaUrl = await (await firmaRef.put(firmaBlob)).ref.getDownloadURL();
+        // Convertimos la firma a texto (Base64) para no usar Storage
+        const firmaBase64 = canvas.toDataURL('image/png');
 
         const contrato = {
             matricula: listaCochesGlobal[idCoche].matricula,
@@ -133,7 +126,7 @@ async function finalizarSalida() {
             dni: document.getElementById('p-dni').value,
             tel: document.getElementById('p-tel').value,
             or: document.getElementById('p-or').value,
-            firma: firmaUrl,
+            firma: firmaBase64, // Se guarda como texto en la DB
             fechaSalida: new Date().toLocaleString(),
             estadoContrato: "Activo"
         };
@@ -146,6 +139,8 @@ async function finalizarSalida() {
         location.reload();
     } catch (e) {
         alert("Error: " + e.message);
+    } finally {
+        document.getElementById('upload-status').style.display = 'none';
     }
 }
 
@@ -174,5 +169,5 @@ async function finalizarEntrada() {
         }
         alert("Vehículo Recogido");
         location.reload();
-    } catch (e) { alert("Error"); }
+    } catch (e) { alert("Error al procesar"); }
 }

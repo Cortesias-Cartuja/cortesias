@@ -1,35 +1,51 @@
-body { font-family: sans-serif; background: #eee; padding: 10px; margin: 0; }
-.form-container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-.section { border-bottom: 2px solid #333; margin-bottom: 15px; padding-bottom: 10px; }
-h3 { margin: 0 0 10px 0; font-size: 16px; color: #002e63; text-transform: uppercase; }
-h4 { margin: 0 0 10px 0; font-size: 14px; text-align: center; background: #eee; padding: 5px; }
+/* Ajuste de márgenes laterales */
+* { box-sizing: border-box; }
 
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+body { font-family: sans-serif; background: #e5e7eb; padding: 20px; margin: 0; }
+
+.form-container { 
+    max-width: 850px; 
+    margin: 0 auto; 
+    background: white; 
+    padding: 30px; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+}
+
+.section { border-bottom: 2px solid #2563eb; margin-bottom: 15px; padding-bottom: 10px; }
+h3 { margin: 0 0 10px 0; font-size: 14px; color: #1e40af; text-transform: uppercase; letter-spacing: 1px; }
+h4 { margin: 0 0 10px 0; font-size: 12px; text-align: center; background: #f3f4f6; padding: 5px; border: 1px solid #d1d5db; }
+
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 10px; }
 .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-label { display: block; font-size: 10px; font-weight: bold; color: #555; margin-bottom: 2px; }
-input, select, textarea { width: 100%; border: 1px solid #ccc; padding: 8px; box-sizing: border-box; font-size: 13px; }
-textarea { height: 50px; resize: none; }
+label { display: block; font-size: 10px; font-weight: bold; color: #374151; margin-bottom: 3px; }
+input, select, textarea { 
+    width: 100%; 
+    border: 1px solid #d1d5db; 
+    padding: 8px; 
+    border-radius: 4px;
+    font-size: 13px; 
+}
 
-.sub-section { border: 1px solid #000; padding: 10px; border-radius: 4px; }
+.sub-section { border: 1px solid #9ca3af; padding: 10px; border-radius: 4px; background: #fff; }
 .data-row { margin-bottom: 8px; }
-.space-firma { margin-top: 20px; border: 1px dashed #999; height: 100px; display: flex; align-items: flex-start; justify-content: center; }
-.space-firma p { font-size: 11px; margin: 5px; color: #666; }
+.space-firma { margin-top: 15px; border: 1px dashed #9ca3af; height: 80px; display: flex; align-items: center; justify-content: center; background: #f9fafb; }
+.space-firma p { font-size: 10px; color: #6b7280; }
 
-.btn-main { width: 100%; padding: 15px; background: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-.tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-.btn-tab { flex: 1; padding: 10px; border: none; cursor: pointer; background: #ccc; }
-.btn-tab.active { background: #002e63; color: white; }
+.btn-main { width: 100%; padding: 15px; background: #059669; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; }
+.btn-tab { padding: 10px 20px; border: none; cursor: pointer; background: #d1d5db; font-weight: bold; border-radius: 4px; }
+.btn-tab.active { background: #1e40af; color: white; }
 
-/* REGLAS DE IMPRESIÓN */
+/* REGLAS DE IMPRESIÓN (SIN CORTES) */
 @media print {
-  @page { size: A4; margin: 0.5cm; }
+  @page { size: A4; margin: 1cm; } /* Margen de seguridad */
   .no-print { display: none !important; }
   .only-print { display: block !important; }
-  body { background: white; padding: 0; }
-  .form-container { width: 100%; border: none; padding: 0; }
-  input, textarea { border: none !important; border-bottom: 1px solid #eee !important; font-weight: bold; }
-  .sub-section { border: 1px solid #000 !important; }
+  body { background: white; padding: 0; margin: 0; }
+  .form-container { width: 100% !important; max-width: 100% !important; border: none; padding: 0; box-shadow: none; }
+  .grid-2-col { gap: 10px; } /* Estrechar hueco en papel */
+  input, textarea { border: none !important; border-bottom: 1px solid #ccc !important; padding: 2px !important; }
 }
 
 .only-print { display: none; }

@@ -12,7 +12,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let listaCochesGlobal = {};
 
-// SINCRO EN TIEMPO REAL: Filtra por estado Disponible/Prestado
+// Sincronización de Stock en tiempo real
 db.ref('coches').on('value', (snap) => {
     const coches = snap.val();
     listaCochesGlobal = coches;
@@ -20,12 +20,11 @@ db.ref('coches').on('value', (snap) => {
     const sEnt = document.getElementById('d-veh-select');
     
     sSal.innerHTML = '<option value="">Coches Disponibles...</option>';
-    sEnt.innerHTML = '<option value="">Coches Cedidos actualmente...</option>';
+    sEnt.innerHTML = '<option value="">Coches Cedidos...</option>';
     
     for (let id in coches) {
         let c = coches[id];
         let texto = `${c.matricula} - ${c.modelo}`;
-        // REGLA: Si está Prestado, no sale en Salida. Si está Disponible, no sale en Recogida.
         if (c.estado === 'Disponible') {
             sSal.innerHTML += `<option value="${id}">${texto}</option>`;
         } else if (c.estado === 'Prestado') {
@@ -41,7 +40,7 @@ function showTab(tabId) {
     document.getElementById('btn-sal').className = isSalida ? 'btn-tab active' : 'btn-tab';
     document.getElementById('btn-ent').className = isSalida ? 'btn-tab' : 'btn-tab active';
     
-    // Limpieza de seguridad al cambiar de pestaña
+    // Limpieza de campos al cambiar
     document.getElementById('contrato-imprimible').querySelectorAll('input, textarea').forEach(el => el.value = "");
 }
 
@@ -53,11 +52,11 @@ function autoRellenarCoche() {
         document.getElementById('p-kms').value = c.kms;
         document.getElementById('p-comb').value = c.combustible || "";
         document.getElementById('p-mat-print').value = c.matricula;
+        // Mostramos la hora prevista de salida en el input para que el cliente la vea al imprimir
         document.getElementById('p-f-salida').value = new Date().toLocaleString();
     }
 }
 
-// VOLCADO DE DATOS: Al seleccionar coche en RECOGIDA, rellena la izquierda
 async function verEstadoSalida() {
     const idCoche = document.getElementById('d-veh-select').value;
     if (!idCoche) return;
@@ -67,7 +66,7 @@ async function verEstadoSalida() {
 
     if (snap.exists()) {
         const d = Object.values(snap.val())[0];
-        // Volcamos todo lo que se registró al salir en los campos de la izquierda
+        // Volcado completo de la salida a la izquierda
         document.getElementById('p-nom').value = d.nombre || "";
         document.getElementById('p-dni').value = d.dni || "";
         document.getElementById('p-cp').value = d.cp || "";
@@ -77,19 +76,22 @@ async function verEstadoSalida() {
         document.getElementById('p-or').value = d.or || "";
         document.getElementById('p-mat-print').value = d.matricula;
         document.getElementById('p-mod').value = d.modelo;
-        document.getElementById('p-kms').value = d.kms; // Kms de salida
+        document.getElementById('p-kms').value = d.kms;
         document.getElementById('p-comb').value = d.combustible || "";
         document.getElementById('p-f-salida').value = d.fechaSalida || "";
         document.getElementById('p-obs').value = d.obs || "";
         
-        // Ponemos fecha de ahora en la columna de la derecha
+        // Ponemos la hora de entrada actual a la derecha
         document.getElementById('d-f-entrada').value = new Date().toLocaleString();
     }
 }
 
 async function finalizarSalida() {
     const idCoche = document.getElementById('p-veh-select').value;
-    if (!idCoche || !document.getElementById('p-nom').value) return alert("Error: Selecciona coche y escribe el nombre del cliente.");
+    if (!idCoche || !document.getElementById('p-nom').value) return alert("Selecciona coche y rellena el cliente.");
+
+    const ahora = new Date().toLocaleString(); // GRABAMOS DÍA Y HORA EXACTA
+    document.getElementById('p-f-salida').value = ahora;
 
     const contrato = {
         matricula: listaCochesGlobal[idCoche].matricula,
@@ -103,7 +105,7 @@ async function finalizarSalida() {
         or: document.getElementById('p-or').value,
         kms: document.getElementById('p-kms').value,
         combustible: document.getElementById('p-comb').value,
-        fechaSalida: new Date().toLocaleString(),
+        fechaSalida: ahora,
         obs: document.getElementById('p-obs').value,
         estado: "Activo"
     };
@@ -118,21 +120,22 @@ async function finalizarSalida() {
 async function finalizarEntrada() {
     const idCoche = document.getElementById('d-veh-select').value;
     const kmsIn = document.getElementById('d-kms').value;
-    if (!idCoche || !kmsIn) return alert("Error: Indica los KMs de entrada para cerrar el contrato.");
+    if (!idCoche || !kmsIn) return alert("Indica los KMs de entrada.");
+
+    const ahora = new Date().toLocaleString(); // GRABAMOS DÍA Y HORA EXACTA
+    document.getElementById('d-f-entrada').value = ahora;
 
     const matricula = listaCochesGlobal[idCoche].matricula;
     const snap = await db.ref('contratos').orderByChild('matricula').equalTo(matricula).limitToLast(1).once('value');
 
     if (snap.exists()) {
         const key = Object.keys(snap.val())[0];
-        // 1. Cerramos contrato
         await db.ref('contratos/' + key).update({ 
             estado: "Cerrado", 
-            fechaEntrada: new Date().toLocaleString(),
+            fechaEntrada: ahora,
             kmsEntrada: kmsIn,
             danosEntrada: document.getElementById('d-danos').value
         });
-        // 2. Liberamos coche y actualizamos sus Kms reales en stock
         await db.ref('coches/' + idCoche).update({ 
             estado: 'Disponible', 
             kms: kmsIn,

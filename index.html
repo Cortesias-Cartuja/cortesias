@@ -23,7 +23,7 @@
 
     <div id="contrato-imprimible">
       <div class="section">
-        <h3>🚗 DATOS DEL VEHÍCULO Y SERVICIO</h3>
+        <h3>DATOS DEL VEHÍCULO Y SERVICIO</h3>
         <div class="grid-4" style="grid-template-columns: 1fr 1.2fr 0.8fr 1.5fr;">
           <div>
             <label>Matrícula</label>
@@ -52,7 +52,7 @@
       </div>
 
       <div class="section">
-        <h3>👤 DATOS DEL CLIENTE</h3>
+        <h3>DATOS DEL CLIENTE</h3>
         <div class="grid-3">
           <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
           <div><label>DNI / NIE</label><input id="p-dni"></div>
@@ -75,7 +75,7 @@
 
       <div class="grid-2-col">
         <div class="sub-section">
-          <h4>🏁 SALIDA (ENTREGA)</h4>
+          <h4>SALIDA (ENTREGA)</h4>
           <div class="data-row"><label>Fecha/Hora:</label><input id="p-f-salida" readonly></div>
           <div class="data-row"><label>KMs Salida:</label><input id="p-kms" type="number"></div>
           <div class="data-row"><label>Combustible:</label><input id="p-comb"></div>
@@ -84,7 +84,7 @@
         </div>
 
         <div class="sub-section">
-          <h4>🏁 ENTRADA (RECOGIDA)</h4>
+          <h4>ENTRADA (RECOGIDA)</h4>
           <div class="data-row"><label>Fecha/Hora:</label><input id="d-f-entrada" readonly></div>
           <div class="data-row"><label>KMs Entrada:</label><input id="d-kms" type="number"></div>
           <div class="data-row"><label>Combustible:</label><input id="d-comb-ent"></div>
@@ -100,14 +100,14 @@
 
     <div class="no-print" style="margin-top:15px;">
       <div id="action-salida">
-        <button class="btn-main" onclick="finalizarSalida()">💾 GUARDAR E IMPRIMIR CONTRATO</button>
+        <button class="btn-main" onclick="finalizarSalida()">GUARDAR E IMPRIMIR CONTRATO</button>
       </div>
       <div id="action-entrada" style="display:none;">
         <div style="background:#eef2ff; padding:10px; border:1px solid #312e81; border-radius:5px; margin-bottom:10px;">
             <label style="color:#312e81;">SELECCIONAR VEHÍCULO QUE REGRESA:</label>
             <select id="d-veh-select" onchange="verEstadoSalida()" style="border:1px solid #312e81;"></select>
         </div>
-        <button class="btn-main" style="background:#312e81;" onclick="finalizarEntrada()">✅ REGISTRAR ENTRADA Y ARCHIVAR</button>
+        <button class="btn-main" style="background:#312e81;" onclick="finalizarEntrada()">REGISTRAR ENTRADA Y ARCHIVAR</button>
       </div>
     </div>
   </div>

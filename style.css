@@ -1,179 +1,35 @@
-/* --- ESTILOS GENERALES (PANTALLA) --- */
-body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background: #f4f6f9; 
-    margin: 0; 
-    padding: 10px; 
-}
+body { font-family: sans-serif; background: #eee; padding: 10px; margin: 0; }
+.form-container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+.section { border-bottom: 2px solid #333; margin-bottom: 15px; padding-bottom: 10px; }
+h3 { margin: 0 0 10px 0; font-size: 16px; color: #002e63; text-transform: uppercase; }
+h4 { margin: 0 0 10px 0; font-size: 14px; text-align: center; background: #eee; padding: 5px; }
 
-.form-container { 
-    max-width: 850px; 
-    margin: 10px auto; 
-    background: white; 
-    padding: 25px; 
-    border-radius: 12px; 
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-}
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-.header-img { margin-bottom: 15px; text-align: center; }
+label { display: block; font-size: 10px; font-weight: bold; color: #555; margin-bottom: 2px; }
+input, select, textarea { width: 100%; border: 1px solid #ccc; padding: 8px; box-sizing: border-box; font-size: 13px; }
+textarea { height: 50px; resize: none; }
 
-/* Navegación por pestañas */
-.tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-.btn-tab { 
-    padding: 12px; 
-    border: none; 
-    cursor: pointer; 
-    font-weight: bold; 
-    flex: 1; 
-    border-radius: 6px; 
-    background: #e9ecef; 
-    color: #495057; 
-    transition: 0.2s;
-}
+.sub-section { border: 1px solid #000; padding: 10px; border-radius: 4px; }
+.data-row { margin-bottom: 8px; }
+.space-firma { margin-top: 20px; border: 1px dashed #999; height: 100px; display: flex; align-items: flex-start; justify-content: center; }
+.space-firma p { font-size: 11px; margin: 5px; color: #666; }
+
+.btn-main { width: 100%; padding: 15px; background: #28a745; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+.tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+.btn-tab { flex: 1; padding: 10px; border: none; cursor: pointer; background: #ccc; }
 .btn-tab.active { background: #002e63; color: white; }
 
-/* Secciones del formulario */
-.section { 
-    border: 1px solid #dee2e6; 
-    padding: 15px; 
-    border-radius: 8px; 
-    margin-bottom: 15px; 
-    background: #fff; 
-}
-
-h3 { 
-    margin-top: 0; 
-    font-size: 15px; 
-    color: #002e63; 
-    border-bottom: 2px solid #f0f0f0; 
-    padding-bottom: 5px; 
-    margin-bottom: 12px;
-    text-transform: uppercase;
-}
-
-/* Sistema de Rejilla (Grid) */
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 10px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
-
-/* Inputs y Etiquetas */
-label { 
-    font-size: 11px; 
-    color: #6c757d; 
-    font-weight: bold; 
-    margin-bottom: 4px; 
-    display: block; 
-    text-transform: uppercase; 
-}
-
-input, select, textarea { 
-    width: 100%; 
-    padding: 10px; 
-    border: 1px solid #ced4da; 
-    border-radius: 6px; 
-    box-sizing: border-box; 
-    font-size: 14px; 
-    background: #fdfdfd; 
-}
-
-input:focus, select:focus { border-color: #002e63; outline: none; background: #fff; }
-
-/* Botón Principal */
-.btn-main { 
-    width: 100%; 
-    padding: 16px; 
-    background: #28a745; 
-    color: white; 
-    border: none; 
-    font-size: 16px; 
-    font-weight: bold; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    transition: 0.3s; 
-    margin-top: 10px; 
-}
-.btn-main:hover { background: #218838; transform: translateY(-1px); }
-.btn-main:active { transform: translateY(0); }
-
-/* --- AJUSTES PARA DISPOSITIVOS MÓVILES --- */
-@media (max-width: 600px) {
-    .grid-3, .grid-2 { grid-template-columns: 1fr; }
-    .form-container { padding: 15px; }
-}
-
-/* --- REGLAS DE IMPRESIÓN (EL CORAZÓN DEL SISTEMA) --- */
+/* REGLAS DE IMPRESIÓN */
 @media print {
-    @page { size: A4; margin: 0.8cm; }
-    
-    body { background: white; padding: 0; margin: 0; }
-    
-    /* Forzar que el contenedor ocupe todo el ancho sin sombras */
-    .form-container { 
-        width: 100% !important; 
-        max-width: 100% !important; 
-        box-shadow: none !important; 
-        margin: 0 !important; 
-        padding: 0 !important; 
-    }
-
-    /* Ocultar elementos de interfaz web */
-    .no-print, .tabs, .btn-main, .btn-clear, .upload-info, #upload-status, a {
-        display: none !important;
-        visibility: hidden !important;
-    }
-
-    /* Asegurar que el contrato de salida sea visible */
-    #tab-entrada { display: none !important; }
-    #tab-salida { display: block !important; }
-
-    /* Compactar secciones para ahorrar espacio vertical */
-    .section { 
-        border: none !important; 
-        border-bottom: 1px solid #000 !important; 
-        margin-bottom: 10px !important; 
-        padding: 5px 0 !important; 
-        border-radius: 0 !important;
-    }
-
-    h3 { 
-        font-size: 12pt !important; 
-        background: #f0f0f0 !important; 
-        color: black !important;
-        padding: 5px !important;
-        border: 1px solid #ccc !important;
-        -webkit-print-color-adjust: exact; 
-    }
-
-    /* Convertir inputs en texto limpio para el papel */
-    input, select, textarea {
-        border: none !important;
-        padding: 2px 0 !important;
-        background: transparent !important;
-        font-size: 11pt !important;
-        font-weight: bold !important;
-        color: black !important;
-    }
-
-    label { 
-        color: #333 !important; 
-        font-size: 9pt !important; 
-        margin-bottom: 0 !important;
-    }
-
-    /* Firma pequeña para no empujar el contenido a otra página */
-    #signature-pad {
-        border: 1px solid #000 !important;
-        height: 100px !important;
-        width: 300px !important;
-        margin: 10px 0 !important;
-    }
-
-    /* Mantener las rejillas alineadas en papel */
-    .grid-3, .grid-2 {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 20px !important;
-        margin-bottom: 5px !important;
-    }
-    
-    .grid-3 > div, .grid-2 > div { flex: 1; }
+  @page { size: A4; margin: 0.5cm; }
+  .no-print { display: none !important; }
+  .only-print { display: block !important; }
+  body { background: white; padding: 0; }
+  .form-container { width: 100%; border: none; padding: 0; }
+  input, textarea { border: none !important; border-bottom: 1px solid #eee !important; font-weight: bold; }
+  .sub-section { border: 1px solid #000 !important; }
 }
+
+.only-print { display: none; }

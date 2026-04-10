@@ -10,63 +10,42 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
   <style>
-    /* Estilos específicos para el Canvas de Firma */
+    /* Mantenemos tu estilo de firma pero más compacto para que no empuje el diseño */
     #signature-pad {
       border: 2px dashed #ccc;
       border-radius: 8px;
       cursor: crosshair;
       background: #f9f9f9;
       width: 100%;
-      height: 180px;
+      height: 160px; /* Ajustado para ahorrar espacio */
       touch-action: none;
     }
     .signature-container { margin-top: 10px; text-align: center; }
-    .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; }
+    .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 5px; cursor: pointer; font-size: 11px; }
 
-    /* Comparativa de devolución */
+    /* Comparativa de devolución para el resumen que pediste */
     #comparativa-salida {
       display: none;
       background: #eef4ff;
-      padding: 15px;
+      padding: 12px;
       margin-bottom: 15px;
       border-radius: 8px;
       border: 1px solid #b6c9f0;
-      font-size: 14px;
+      font-size: 13px;
     }
 
-    /* CSS de impresión integrado para asegurar una sola hoja */
+    /* CSS de impresión para asegurar 1 sola hoja */
     @media print {
       @page { size: A4; margin: 0.5cm; }
       body { background: white; padding: 0; margin: 0; }
       .form-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; }
-      
-      /* Ocultar elementos no deseados en papel */
-      .no-print, .tabs, .btn-main, .btn-clear, a, .upload-info, #upload-status {
-        display: none !important;
-      }
-
-      .section {
-        padding: 10px !important;
-        margin-bottom: 8px !important;
-        border: 1px solid #eee !important;
-        page-break-inside: avoid;
-      }
-
+      .no-print, .tabs, .btn-main, .btn-clear, a, .upload-info, #upload-status { display: none !important; }
+      .section { padding: 10px !important; margin-bottom: 8px !important; border-bottom: 1px solid #eee !important; }
       h3 { font-size: 13px !important; margin: 5px 0 !important; background: #f0f0f0 !important; padding: 4px !important; }
-
-      #signature-pad { height: 110px !important; border: 1px solid #000 !important; }
-
-      input, select, textarea {
-        font-size: 12px !important;
-        padding: 2px !important;
-        border: none !important;
-        background: transparent !important;
-        font-weight: bold;
-      }
-
+      #signature-pad { height: 100px !important; border: 1px solid #000 !important; }
+      input, select, textarea { font-size: 12px !important; padding: 2px !important; border: none !important; background: transparent !important; font-weight: bold; }
       label { font-size: 10px !important; color: #555 !important; }
-      
-      .grid-3, .grid-2 { display: flex !important; gap: 15px !important; margin-bottom: 5px !important; }
+      .grid-3, .grid-2 { display: flex !important; gap: 10px !important; margin-bottom: 5px !important; }
       .grid-3 > div, .grid-2 > div { flex: 1; }
     }
   </style>
@@ -75,99 +54,88 @@
 
   <div class="form-container">
     <div style="text-align: right; padding-bottom: 10px;" class="no-print">
-      <a href="admin.html" style="font-size: 12px; color: #666; text-decoration: none; border: 1px solid #ccc; padding: 4px 8px; border-radius: 4px;">⚙️ Acceso Admin</a>
+      <a href="admin.html" style="font-size: 11px; color: #666; text-decoration: none; border: 1px solid #ccc; padding: 3px 6px; border-radius: 4px;">⚙️ ADMIN</a>
     </div>
     
     <div class="header-img">
-      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%; max-height: 80px; object-fit: contain;" alt="Logo Taller"> 
+      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%" alt="Logo Taller"> 
     </div>
 
     <div class="tabs no-print">
-      <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA (Préstamo)</button>
-      <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">ENTRADA (Devolución)</button>
+      <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA</button>
+      <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">DEVOLUCIÓN</button>
     </div>
 
     <div id="tab-salida">
       <div class="section">
-        <h3>🚗 DATOS DEL VEHÍCULO DE CORTESÍA</h3>
+        <h3>DATOS PRESTAMO</h3>
         <div class="grid-3">
           <div>
             <label>Vehículo (Matrícula)</label>
             <select id="p-veh-select" onchange="autoRellenarCoche()">
-              <option value="">Cargando vehículos...</option>
+              <option value="">Cargando stock...</option>
             </select>
           </div>
           <div><label>Modelo</label><input id="p-mod" readonly style="background:#f9f9f9;"></div>
           <div><label>KMs Salida</label><input id="p-kms" type="number"></div>
         </div>
         <div class="grid-3">
-          <div><label>Combustible</label><input id="p-comb" placeholder="Ej: 100% o 4/4"></div>
-          <div><label>Matrícula Cliente</label><input id="p-mat-c" placeholder="Coche taller"></div>
-          <div><label>Nº Orden / ASPV</label><input id="p-or"></div>
+          <input id="p-comb" placeholder="Combustible Salida">
+          <input id="p-mat-c" placeholder="Matrícula Cliente">
+          <input id="p-or" placeholder="Nº Orden (OR)">
         </div>
         <div class="grid-2">
-          <div>
-            <label>Motivo</label>
-            <select id="p-motivo">
-              <option value="Avería">Avería</option>
-              <option value="Mantenimiento">Mantenimiento</option>
-              <option value="Chapa">Chapa</option>
-              <option value="Garantía">Garantía</option>
-            </select>
-          </div>
-          <div><label>Tarifa Diaria (€)</label><input id="p-tarifa" placeholder="0.00"></div>
+          <select id="p-motivo">
+            <option value="Avería">Avería</option>
+            <option value="Mantenimiento">Mantenimiento</option>
+            <option value="Chapa">Chapa</option>
+            <option value="M. Servicio">M. Servicio</option>
+          </select>
+          <input id="p-tarifa" placeholder="Tarifa (€)">
         </div>
       </div>
 
       <div class="section">
-        <h3>DATOS DEL CONDUCTOR</h3>
+        <h3>DATOS CLIENTE</h3>
         <div class="grid-3">
-          <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
-          <div><label>DNI / NIE</label><input id="p-dni"></div>
-          <div><label>Código Postal</label><input id="p-cp"></div>
-        </div>
+            <input id="p-nom" placeholder="Nombre completo">
+            <input id="p-dni" placeholder="DNI">
+            <input id="p-cp" placeholder="C. Postal"> </div>
         <div class="grid-2">
-          <div><label>Teléfono</label><input id="p-tel"></div>
-          <div><label>Fecha Nacimiento</label><input id="p-fnac" type="date"></div>
+            <input id="p-tel" placeholder="Teléfono"> 
+            <label>F. Nacimiento <input id="p-fnac" type="date"></label>
         </div>
         <div class="grid-3">
-          <div><label>Exp. Carnet</label><input id="p-fcarnet" type="date"></div>
-          <div><label>Caducidad Carnet</label><input id="p-fcad" type="date"></div>
-          <div><label>F. Aprox. Devolución</label><input id="p-faprox" type="date"></div>
+          <label>F. Carnet <input id="p-fcarnet" type="date"></label>
+          <label>Caducidad <input id="p-fcad" type="date"></label>
+          <label>F. Aprox. Dev <input id="p-faprox" type="date"></label>
         </div>
-        
+
         <div class="signature-container">
-          <label style="display:block; margin-bottom:5px; text-align:left; font-weight:bold;">Firma del Cliente</label>
+          <label style="display:block; margin-bottom:5px; text-align:left; font-weight:bold; font-size:12px;">✍️ Firma del Cliente</label>
           <canvas id="signature-pad"></canvas>
-          <button type="button" class="btn-clear no-print" onclick="clearSignature()">Borrar Firma</button>
+          <button type="button" class="btn-clear no-print" onclick="clearSignature()">Borrar firma</button>
         </div>
 
-        <textarea id="p-obs" placeholder="Observaciones adicionales (daños previos, etc.)..." style="width:100%; margin-top:10px; height:50px;"></textarea>
+        <textarea id="p-obs" placeholder="Observaciones..." style="width:100%; margin-top:10px; height:40px;"></textarea>
       </div>
-
-      <button class="btn-main no-print" id="btn-salida" onclick="finalizarSalida()">GRABAR E IMPRIMIR CONTRATO</button>
-      <div id="upload-status" class="upload-info" style="display:none; text-align:center;">⏳ Procesando envío de datos...</div>
+      <button class="btn-main no-print" id="btn-salida" onclick="finalizarSalida()">GRABAR E IMPRIMIR</button>
+      <div id="upload-status" class="upload-info" style="display:none; text-align:center;">⏳ Guardando datos y firma...</div>
     </div>
 
     <div id="tab-entrada" style="display:none">
       <div class="section">
-        <h3>🏁 RECEPCIÓN DE VEHÍCULO</h3>
-        <div style="margin-bottom:15px;">
-          <label>Seleccionar vehículo que entra</label>
-          <select id="d-veh-select" onchange="verEstadoSalida()" style="font-size:16px; height:40px;"></select>
+        <h3>🏁 DEVOLUCIÓN (DESBLOQUEAR)</h3>
+        <label>Vehículo a recibir</label>
+        <select id="d-veh-select" onchange="verEstadoSalida()" style="font-size:18px; height:45px; margin-bottom:15px;"></select>
+        
+        <div id="comparativa-salida"></div> <div class="grid-2">
+          <input id="d-kms" type="number" placeholder="KMs Entrada">
+          <input id="d-comb" placeholder="Combustible Entrada">
         </div>
+        <textarea id="d-danos" placeholder="Notas de nuevos daños o limpieza..." style="width:100%; height:60px; margin-top:10px;"></textarea>
         
-        <div id="comparativa-salida"></div>
-
-        <div class="grid-2">
-          <div><label>KMs Entrada</label><input id="d-kms" type="number" placeholder="Lectura cuentakm"></div>
-          <div><label>Combustible Entrada</label><input id="d-comb" placeholder="Nivel al entrar"></div>
-        </div>
-        
-        <label style="margin-top:10px;">Notas sobre daños o limpieza</label>
-        <textarea id="d-danos" placeholder="Describir si hay nuevos desperfectos..." style="width:100%; height:80px;"></textarea>
-        
-        <button class="btn-main" style="background:#0056b3; margin-top:20px;" onclick="finalizarEntrada()">FINALIZAR DEVOLUCIÓN</button>
+        <button class="btn-main" style="background:#0056b3; margin-top:20px;" onclick="finalizarEntrada()">REGISTRAR ENTRADA Y LIBERAR</button>
       </div>
     </div>
   </div>

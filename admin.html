@@ -8,17 +8,16 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <style>
-    body { background: #f0f2f5; }
+    body { background: #f0f2f5; font-family: sans-serif; }
     .admin-container { max-width: 1200px; margin: 20px auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .stat-card { padding: 20px; border-radius: 8px; color: white; text-align: center; }
     .bg-blue { background: #002e63; }
     .bg-green { background: #28a745; }
     .bg-orange { background: #fd7e14; }
+    .bg-gray { background: #6c757d; }
     
     .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; margin-top: 30px; padding-bottom: 10px; }
-    
     table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
     th, td { padding: 12px; border: 1px solid #eee; text-align: left; }
     th { background: #f8f9fa; color: #333; position: sticky; top: 0; }
@@ -26,12 +25,18 @@
     .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
     .disponible { background: #d4edda; color: #155724; }
     .prestado { background: #f8d7da; color: #721c24; }
+    .baja { background: #e2e3e5; color: #383d41; }
     
-    .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
+    .alerta-roja { color: #dc3545; font-weight: bold; animation: blink 2s infinite; }
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+    .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; margin-right: 5px; }
+    .btn-orange { background: #fd7e14; color: white; }
+    .btn-green { background: #28a745; color: white; }
     .btn-red { background: #ff4d4d; color: white; }
     .btn-excel { background: #1d6f42; color: white; padding: 8px 15px; border-radius: 5px; border: none; cursor: pointer; }
     
-    .scroll-table { overflow-x: auto; max-height: 450px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
+    .scroll-table { overflow-x: auto; max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; margin-bottom: 20px; }
     .search-box { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
   </style>
 </head>
@@ -40,31 +45,33 @@
 <div class="admin-container">
   <div style="display:flex; justify-content: space-between; align-items:center;">
     <h1>📊 Panel de Gestión Total</h1>
-    <a href="index.html" class="btn-tab active" style="text-decoration:none; max-width: 150px; text-align:center;">Volver al Formulario</a>
+    <a href="index.html" class="btn-tab active" style="text-decoration:none; background:#002e63; color:white; padding:10px 20px; border-radius:5px;">Volver al Formulario</a>
   </div>
 
   <div class="stats-grid">
-    <div class="stat-card bg-blue"><small>Total Flota</small><h2 id="stat-total">0</h2></div>
+    <div class="stat-card bg-blue"><small>Activos</small><h2 id="stat-total">0</h2></div>
     <div class="stat-card bg-green"><small>Disponibles</small><h2 id="stat-disp">0</h2></div>
     <div class="stat-card bg-orange"><small>En Préstamo</small><h2 id="stat-pres">0</h2></div>
+    <div class="stat-card bg-gray"><small>Bajas</small><h2 id="stat-bajas">0</h2></div>
   </div>
 
   <div class="section-header">
-    <h3>🚗 Gestión de Vehículos (Alta/Baja)</h3>
+    <h3>🚗 Gestión de Vehículos</h3>
   </div>
   <div class="section" style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #eee;">
-    <div class="grid-3">
-      <input id="new-mat" placeholder="Matrícula">
-      <input id="new-mod" placeholder="Marca / Modelo">
-      <input id="new-kms" type="number" placeholder="KMs Iniciales">
+    <div class="grid-3" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+      <input id="new-mat" placeholder="Matrícula" style="padding:8px;">
+      <input id="new-mod" placeholder="Marca / Modelo" style="padding:8px;">
+      <input id="new-kms" type="number" placeholder="KMs Iniciales" style="padding:8px;">
     </div>
-    <div class="grid-2" style="margin-top:10px;">
-      <input id="new-comb" placeholder="Combustible (ej: 100%)">
-      <button class="btn-main" onclick="agregarCoche()">AÑADIR NUEVO VEHÍCULO</button>
+    <div style="margin-top:10px; display:flex; gap:10px;">
+      <input id="new-comb" placeholder="Combustible (ej: 100%)" style="padding:8px; flex-grow:1;">
+      <button onclick="agregarCoche()" style="background:#28a745; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">AÑADIR NUEVO VEHÍCULO</button>
     </div>
   </div>
 
-  <div class="scroll-table" style="margin-top: 20px;">
+  <h4>Vehículos en Flota Activa</h4>
+  <div class="scroll-table">
     <table>
       <thead>
         <tr>
@@ -79,9 +86,16 @@
     </table>
   </div>
 
+  <h4>📁 Histórico de Bajas</h4>
+  <div class="scroll-table" style="opacity: 0.8;">
+    <table>
+      <tbody id="lista-bajas"></tbody>
+    </table>
+  </div>
+
   <div class="section-header">
     <h3>📋 Historial de Préstamos</h3>
-    <button class="btn-excel" onclick="exportarExcel()">📥 Descargar Historial</button>
+    <button class="btn-excel" onclick="exportarExcel()">📥 Descargar Excel (CSV)</button>
   </div>
   
   <input type="text" id="historialSearch" class="search-box" placeholder="Buscar por matrícula, cliente o DNI..." onkeyup="filtrarHistorial()">
@@ -104,7 +118,6 @@
 </div>
 
 <script>
-  // CONFIGURACIÓN FIREBASE REAL
   const firebaseConfig = {
     apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
     authDomain: "cortesias-4235e.firebaseapp.com",
@@ -118,13 +131,14 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // Escuchar Datos
+  // Escuchar Vehículos
   db.ref('coches').on('value', snapshot => {
     const coches = snapshot.val() || {};
     renderVehiculos(coches);
     renderStats(coches);
   });
 
+  // Escuchar Contratos
   db.ref('contratos').on('value', snapshot => {
     const contratos = snapshot.val() || {};
     renderContratos(contratos);
@@ -132,25 +146,37 @@
 
   function renderStats(coches) {
     const vals = Object.values(coches);
-    document.getElementById('stat-total').innerText = vals.length;
+    document.getElementById('stat-total').innerText = vals.filter(c => c.estado !== 'Baja').length;
     document.getElementById('stat-disp').innerText = vals.filter(c => c.estado === 'Disponible').length;
     document.getElementById('stat-pres').innerText = vals.filter(c => c.estado === 'Prestado').length;
+    document.getElementById('stat-bajas').innerText = vals.filter(c => c.estado === 'Baja').length;
   }
 
   function renderVehiculos(coches) {
     const lista = document.getElementById('lista-vehiculos');
+    const listaBajas = document.getElementById('lista-bajas');
     lista.innerHTML = "";
+    listaBajas.innerHTML = "";
+
     Object.keys(coches).forEach(id => {
       const c = coches[id];
-      lista.innerHTML += `
+      const fila = `
         <tr>
           <td><b>${c.matricula}</b></td>
           <td>${c.modelo}</td>
           <td>${c.kms} km</td>
           <td><span class="status-badge ${c.estado.toLowerCase()}">${c.estado}</span></td>
-          <td><button class="btn-action btn-red" onclick="eliminarCoche('${id}')">Eliminar</button></td>
+          <td>
+            ${c.estado !== 'Baja' 
+              ? `<button class="btn-action btn-orange" onclick="cambiarEstado('${id}', 'Baja')">Dar de Baja</button>`
+              : `<button class="btn-action btn-green" onclick="cambiarEstado('${id}', 'Disponible')">Activar</button>`
+            }
+            <button class="btn-action btn-red" onclick="eliminarDefinitivo('${id}')">Eliminar</button>
+          </td>
         </tr>
       `;
+      if (c.estado === 'Baja') listaBajas.innerHTML += fila;
+      else lista.innerHTML += fila;
     });
   }
 
@@ -158,30 +184,54 @@
     const lista = document.getElementById('lista-contratos');
     lista.innerHTML = "";
     Object.values(contratos).reverse().forEach(c => {
-      const dias = calcularDiferenciaDias(c.fechaSalida);
+      const infoTiempo = calcularDiferenciaDias(c.fechaSalida, c.estadoContrato);
       lista.innerHTML += `
         <tr>
           <td>${c.fechaSalida}</td>
           <td><b>${c.matricula}</b></td>
           <td>${c.nombre} <br><small>${c.tel}</small></td>
           <td>${c.or}</td>
-          <td>${dias}</td>
-          <td><span class="status-badge" style="background:#eee">Cerrado</span></td>
+          <td class="${infoTiempo.alerta ? 'alerta-roja' : ''}">${infoTiempo.texto}</td>
+          <td><span class="status-badge" style="background:#eee">${c.estadoContrato || 'Finalizado'}</span></td>
         </tr>
       `;
     });
   }
 
-  function calcularDiferenciaDias(fechaStr) {
-    if(!fechaStr) return "---";
-    // Intenta parsear la fecha (formato esperado local dd/mm/yyyy, hh:mm:ss)
+  function calcularDiferenciaDias(fechaStr, estado) {
+    if(!fechaStr) return { texto: "---", alerta: false };
     try {
       const partes = fechaStr.split(",")[0].split("/");
       const fechaSalida = new Date(partes[2], partes[1] - 1, partes[0]);
       const hoy = new Date();
       const diff = Math.floor((hoy - fechaSalida) / (1000 * 60 * 60 * 24));
-      return diff === 0 ? "Hoy" : `Hace ${diff} días`;
-    } catch(e) { return "---"; }
+      
+      let alerta = (estado !== "Cerrado" && diff >= 3);
+      let texto = diff === 0 ? "Hoy" : `Hace ${diff} días`;
+      if (estado !== "Cerrado" && diff >= 3) texto += " ⚠️ REVISAR";
+      
+      return { texto: texto, alerta: alerta };
+    } catch(e) { return { texto: "---", alerta: false }; }
+  }
+
+  async function agregarCoche() {
+    const mat = document.getElementById('new-mat').value.toUpperCase().trim();
+    const mod = document.getElementById('new-mod').value.trim();
+    const kms = document.getElementById('new-kms').value;
+    const comb = document.getElementById('new-comb').value;
+    if(!mat || !mod) return alert("Matrícula y Modelo son obligatorios");
+    await db.ref('coches').push({
+      matricula: mat, modelo: mod, kms: kms || 0, combustible: comb || "100%", estado: "Disponible"
+    });
+    document.getElementById('new-mat').value = ""; document.getElementById('new-mod').value = "";
+  }
+
+  function cambiarEstado(id, nuevoEstado) {
+    db.ref('coches/' + id).update({ estado: nuevoEstado });
+  }
+
+  function eliminarDefinitivo(id) {
+    if(confirm("¿Eliminar para siempre de la base de datos?")) db.ref('coches/' + id).remove();
   }
 
   function filtrarHistorial() {
@@ -192,35 +242,12 @@
     }
   }
 
-  async function agregarCoche() {
-    const mat = document.getElementById('new-mat').value.toUpperCase().trim();
-    const mod = document.getElementById('new-mod').value.trim();
-    const kms = document.getElementById('new-kms').value;
-    const comb = document.getElementById('new-comb').value;
-    
-    if(!mat || !mod) return alert("Matrícula y Modelo son obligatorios");
-
-    await db.ref('coches').push({
-      matricula: mat, modelo: mod, kms: kms || 0, combustible: comb || "100%", estado: "Disponible"
-    });
-    
-    document.getElementById('new-mat').value = "";
-    document.getElementById('new-mod').value = "";
-    alert("Vehículo añadido correctamente.");
-  }
-
-  async function eliminarCoche(id) {
-    if(confirm("¿Estás seguro de eliminar este vehículo? Se borrará permanentemente de la flota.")) {
-      await db.ref('coches/' + id).remove();
-    }
-  }
-
   function exportarExcel() {
-    let csv = "Fecha;Matricula;Cliente;Telefono;OR;Kms Salida\n";
+    let csv = "Fecha Salida;Matricula;Cliente;Telefono;OR;Kms Salida;Estado\n";
     db.ref('contratos').once('value', snapshot => {
       const data = snapshot.val();
       Object.values(data).forEach(c => {
-        csv += `${c.fechaSalida};${c.matricula};${c.nombre};${c.tel};${c.or};${c.kms}\n`;
+        csv += `${c.fechaSalida};${c.matricula};${c.nombre};${c.tel};${c.or};${c.kms};${c.estadoContrato || 'Finalizado'}\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");

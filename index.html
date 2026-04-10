@@ -25,7 +25,7 @@
 
     <div id="contrato-imprimible">
       <div class="section">
-        <h3>🚗 DATOS DEL VEHÍCULO DE CORTESÍA</h3>
+        <h3>DATOS DEL VEHÍCULO DE CORTESÍA</h3>
         <div class="grid-3">
           <div>
             <label>Vehículo (Matrícula)</label>
@@ -40,7 +40,7 @@
       </div>
 
       <div class="section">
-        <h3>👤 DATOS DEL CONDUCTOR Y CLIENTE</h3>
+        <h3>DATOS DEL CONDUCTOR Y CLIENTE</h3>
         <div class="grid-3">
           <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
           <div><label>DNI / NIE / PAS.</label><input id="p-dni"></div>
@@ -76,13 +76,13 @@
 
     <div class="no-print action-bar" style="margin-top:20px;">
       <div id="action-salida">
-        <button class="btn-main" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR SALIDA</button>
+        <button class="btn-main" onclick="finalizarSalida()">GRABAR E IMPRIMIR SALIDA</button>
       </div>
       
       <div id="action-entrada" style="display:none; background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <label style="font-size: 14px; margin-bottom: 10px; color: #1e293b;">SELECCIONAR COCHE QUE LLEGA AL TALLER:</label>
         <select id="d-veh-select" onchange="verEstadoSalida()" style="font-weight: bold; border: 2px solid #3b82f6;"></select>
-        <button class="btn-main btn-blue" onclick="finalizarEntrada()">✅ FINALIZAR RECOGIDA E IMPRIMIR</button>
+        <button class="btn-main btn-blue" onclick="finalizarEntrada()">FINALIZAR RECOGIDA E IMPRIMIR</button>
       </div>
     </div>
   </div>

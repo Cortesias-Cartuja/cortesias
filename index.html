@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Acta de Préstamo y Devolución</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Flota - Acta de Entrega</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -10,28 +11,28 @@
 <body>
 
   <div class="form-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;" class="no-print">
-      <div class="tabs" style="margin-bottom: 0;">
+    <div class="no-print header-nav">
+      <div class="tabs">
         <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA</button>
         <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">RECOGIDA</button>
       </div>
-      <a href="admin.html" style="font-size: 12px; color: #444; text-decoration: none; border: 1px solid #bbb; padding: 5px 10px; border-radius: 4px; background: #eee;">⚙️ ADMIN</a>
+      <a href="admin.html" class="btn-admin">⚙️ ADMIN</a>
     </div>
 
     <div class="header-img">
-      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%" alt="Logo"> 
+      <img src="https://i.imgur.com/NQH1nT0.png" alt="Logo"> 
     </div>
 
     <div id="contrato-imprimible">
       <div class="section">
-        <h3>DATOS DEL VEHÍCULO Y SERVICIO</h3>
+        <h3>🚗 DATOS DEL VEHÍCULO Y SERVICIO</h3>
         <div class="grid-3">
           <div>
             <label>Vehículo (Matrícula)</label>
             <select id="p-veh-select" onchange="autoRellenarCoche()" class="no-print">
               <option value="">Seleccionar...</option>
             </select>
-            <input id="p-mat-print" class="only-print" readonly placeholder="Matrícula">
+            <input id="p-mat-print" class="only-print" readonly>
           </div>
           <div><label>Modelo</label><input id="p-mod" readonly></div>
           <div><label>Nº Orden (OR)</label><input id="p-or"></div>
@@ -39,7 +40,7 @@
       </div>
 
       <div class="section">
-        <h3>DATOS DEL CLIENTE</h3>
+        <h3>👤 DATOS DEL CLIENTE</h3>
         <div class="grid-3">
           <div><label>Nombre Completo</label><input id="p-nom"></div>
           <div><label>DNI / NIE</label><input id="p-dni"></div>
@@ -53,7 +54,7 @@
       </div>
 
       <div class="grid-2-col">
-        <div class="sub-section">
+        <div class="sub-section" id="col-salida">
           <h4>DATOS DE ENTREGA (SALIDA)</h4>
           <div class="data-row"><label>Fecha Salida:</label><input id="p-f-salida"></div>
           <div class="data-row"><label>KMs Salida:</label><input id="p-kms"></div>
@@ -62,7 +63,7 @@
           <div class="space-firma"><p>Firma Cliente Entrega</p></div>
         </div>
 
-        <div class="sub-section">
+        <div class="sub-section" id="col-entrada">
           <h4>DATOS DE RECOGIDA (ENTRADA)</h4>
           <div class="data-row"><label>Fecha Entrada:</label><input id="d-f-entrada"></div>
           <div class="data-row"><label>KMs Entrada:</label><input id="d-kms"></div>
@@ -73,16 +74,18 @@
       </div>
     </div>
 
-    <div class="no-print" style="margin-top: 20px;">
-        <div id="btn-container-salida">
-          <button class="btn-main" onclick="finalizarSalida()">GRABAR E IMPRIMIR SALIDA</button>
+    <div class="no-print action-bar">
+      <div id="action-salida">
+        <button class="btn-main" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR SALIDA</button>
+      </div>
+      
+      <div id="action-entrada" style="display:none;">
+        <div class="selector-recogida">
+          <label>¿Qué vehículo estás recogiendo?</label>
+          <select id="d-veh-select" onchange="verEstadoSalida()"></select>
         </div>
-        
-        <div id="tab-entrada-actions" style="display:none; background: #f0f0f0; padding: 15px; border-radius: 8px;">
-            <label style="font-size: 14px;">Seleccionar Vehículo a Recoger:</label>
-            <select id="d-veh-select" onchange="verEstadoSalida()" style="margin-bottom: 10px;"></select>
-            <button class="btn-main" style="background:#0056b3;" onclick="finalizarEntrada()">✅ REGISTRAR Y CERRAR RECOGIDA</button>
-        </div>
+        <button class="btn-main btn-blue" onclick="finalizarEntrada()">✅ REGISTRAR Y IMPRIMIR RECOGIDA</button>
+      </div>
     </div>
   </div>
 

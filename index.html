@@ -11,36 +11,43 @@
   <div class="form-container">
     <div class="no-print header-nav">
       <div class="tabs">
-        <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">NUEVA SALIDA</button>
-        <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">RECOGIDA / ENTRADA</button>
+        <button onclick="showTab('tab-salida')" class="btn-tab active" id="btn-sal">SALIDA</button>
+        <button onclick="showTab('tab-entrada')" class="btn-tab" id="btn-ent">ENTRADA</button>
       </div>
-      <a href="admin.html" class="btn-admin">⚙️ PANEL CONTROL</a>
+      <a href="admin.html" class="btn-admin">⚙️ PANEL ADMIN</a>
     </div>
 
     <div class="header-img">
-      <img src="https://i.imgur.com/NQH1nT0.png" style="width:100%" alt="Logo"> 
+      <img src="https://i.imgur.com/NQH1nT0.png" alt="Logo Empresa"> 
     </div>
 
     <div id="contrato-imprimible">
       <div class="section">
-        <h3>🚗 VEHÍCULO DE CORTESÍA Y ASESOR</h3>
-        <div class="grid-4">
+        <h3>🚗 DATOS DEL VEHÍCULO Y SERVICIO</h3>
+        <div class="grid-4" style="grid-template-columns: 1fr 1.2fr 0.8fr 1.5fr;">
           <div>
-            <label>Matrícula Cortesía</label>
+            <label>Matrícula</label>
             <select id="p-veh-select" onchange="autoRellenarCoche()" class="no-print"></select>
             <input id="p-mat-print" class="only-print" readonly>
           </div>
-          <div><label>Modelo</label><input id="p-mod" readonly></div>
-          <div><label>Nº Orden (OR)</label><input id="p-or"></div>
           <div>
-            <label>Asesor</label>
+            <label>Modelo</label>
+            <input id="p-mod" readonly style="background:#f9f9f9;">
+          </div>
+          <div>
+            <label>Nº OR</label>
+            <input id="p-or" placeholder="0000">
+          </div>
+          <div>
+            <label>Asesor de Servicio</label>
             <select id="p-asesor-select"></select>
           </div>
         </div>
-        <div class="grid-3" style="background:#f1f5f9; padding:10px; border-radius:5px; margin-top:5px;">
-            <div><label>Cía Seguro</label><input id="p-cia-fija" readonly></div>
-            <div><label>Póliza</label><input id="p-pol-fija" readonly></div>
-            <div><label>Asistencia</label><input id="p-tel-fija" readonly></div>
+        
+        <div class="grid-3" style="background:#f1f5f9; padding:5px; border-radius:3px; margin-top:5px; border: 1px solid #ddd;">
+            <div><label>Cía Seguro:</label><input id="p-cia-fija" readonly style="border:none; background:transparent; font-weight:bold;"></div>
+            <div><label>Póliza:</label><input id="p-pol-fija" readonly style="border:none; background:transparent; font-weight:bold;"></div>
+            <div><label>Asistencia:</label><input id="p-tel-fija" readonly style="border:none; background:transparent; font-weight:bold;"></div>
         </div>
       </div>
 
@@ -49,16 +56,16 @@
         <div class="grid-3">
           <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
           <div><label>DNI / NIE</label><input id="p-dni"></div>
-          <div><label>Teléfono Cliente</label><input id="p-tel" type="number"></div>
+          <div><label>Teléfono Movil</label><input id="p-tel" type="number"></div>
         </div>
-        <div class="grid-3">
+        <div class="grid-3" style="margin-top:5px;">
           <div><label>Matrícula Cliente</label><input id="p-mat-c"></div>
-          <div><label>Código Postal</label><input id="p-cp"></div>
-          <div><label>Fecha Devolución Prevista</label><input id="p-f-devolucion" type="date"></div>
+          <div><label>C.P.</label><input id="p-cp"></div>
+          <div><label>Devolución Prevista</label><input id="p-f-devolucion" type="date"></div>
         </div>
-        <div class="grid-1" style="margin-top:10px;">
-            <label>TARIFAS Y CARGOS</label>
-            <select id="p-tarifa-select" style="border: 2px solid #1e3a8a; font-weight: bold;">
+        <div style="margin-top:8px;">
+            <label>TIPO DE TARIFA SELECCIONADA</label>
+            <select id="p-tarifa-select" style="border: 2px solid #1e3a8a; font-weight: bold; padding: 2px;">
                 <option value="GRATUITA">GRATUITA (Franquicia 300€)</option>
                 <option value="REDUCIDA">REDUCIDA (15€/día)</option>
                 <option value="ESTANDAR">ESTANDAR (30€/día)</option>
@@ -68,38 +75,43 @@
 
       <div class="grid-2-col">
         <div class="sub-section">
-          <h4>ESTADO EN LA ENTREGA</h4>
-          <div class="data-row"><label>Fecha Salida:</label><input id="p-f-salida" readonly></div>
+          <h4>🏁 SALIDA (ENTREGA)</h4>
+          <div class="data-row"><label>Fecha/Hora:</label><input id="p-f-salida" readonly></div>
           <div class="data-row"><label>KMs Salida:</label><input id="p-kms" type="number"></div>
           <div class="data-row"><label>Combustible:</label><input id="p-comb"></div>
           <div class="data-row"><label>Observaciones:</label><textarea id="p-obs"></textarea></div>
-          <div class="space-firma"><p>FIRMA ENTREGA</p></div>
+          <div class="space-firma"><p>FIRMA CLIENTE (SALIDA)</p></div>
         </div>
 
         <div class="sub-section">
-          <h4>ESTADO EN LA RECOGIDA</h4>
-          <div class="data-row"><label>Fecha Entrada:</label><input id="d-f-entrada" readonly></div>
+          <h4>🏁 ENTRADA (RECOGIDA)</h4>
+          <div class="data-row"><label>Fecha/Hora:</label><input id="d-f-entrada" readonly></div>
           <div class="data-row"><label>KMs Entrada:</label><input id="d-kms" type="number"></div>
-          <div class="data-row"><label>Combustible Entrada:</label><input id="d-comb-ent"></div>
-          <div class="data-row"><label>Nuevos Daños:</label><textarea id="d-danos"></textarea></div>
-          <div class="space-firma"><p>FIRMA RECOGIDA</p></div>
+          <div class="data-row"><label>Combustible:</label><input id="d-comb-ent"></div>
+          <div class="data-row"><label>Daños/Notas:</label><textarea id="d-danos"></textarea></div>
+          <div class="space-firma"><p>FIRMA CLIENTE (ENTRADA)</p></div>
         </div>
       </div>
+
+      <p style="font-size: 8px; color: #666; margin-top: 10px; line-height: 1;">
+        El cliente declara recibir el vehículo en perfecto estado y se compromete a su devolución en las mismas condiciones. En caso de siniestro culpable, se aplicará la franquicia correspondiente según la tarifa seleccionada.
+      </p>
     </div>
 
-    <div class="no-print">
+    <div class="no-print" style="margin-top:15px;">
       <div id="action-salida">
-        <button class="btn-main" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR SALIDA</button>
+        <button class="btn-main" onclick="finalizarSalida()">💾 GUARDAR E IMPRIMIR CONTRATO</button>
       </div>
       <div id="action-entrada" style="display:none;">
-        <div style="background:#eff6ff; padding:15px; border-radius:8px; border:1px solid #2563eb; margin-bottom:10px;">
-            <label style="font-weight:bold;">SELECCIONA COCHE A RECOGER:</label>
-            <select id="d-veh-select" onchange="verEstadoSalida()"></select>
+        <div style="background:#eef2ff; padding:10px; border:1px solid #312e81; border-radius:5px; margin-bottom:10px;">
+            <label style="color:#312e81;">SELECCIONAR VEHÍCULO QUE REGRESA:</label>
+            <select id="d-veh-select" onchange="verEstadoSalida()" style="border:1px solid #312e81;"></select>
         </div>
-        <button class="btn-main" style="background:#2563eb;" onclick="finalizarEntrada()">✅ FINALIZAR Y IMPRIMIR RECOGIDA</button>
+        <button class="btn-main" style="background:#312e81;" onclick="finalizarEntrada()">✅ REGISTRAR ENTRADA Y ARCHIVAR</button>
       </div>
     </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>

@@ -12,34 +12,43 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let listaCochesGlobal = {};
 
-// Sincronizar coches
+// Sincronizar coches en tiempo real
 db.ref('coches').on('value', (snap) => {
     const coches = snap.val();
     listaCochesGlobal = coches;
     const sSal = document.getElementById('p-veh-select');
     const sEnt = document.getElementById('d-veh-select');
     
-    sSal.innerHTML = '<option value="">Seleccionar vehículo...</option>';
-    sEnt.innerHTML = '<option value="">Seleccionar vehículo...</option>';
+    sSal.innerHTML = '<option value="">Seleccionar...</option>';
+    sEnt.innerHTML = '<option value="">Seleccionar vehículo prestado...</option>';
     
     for (let id in coches) {
         let c = coches[id];
-        let opt = `<option value="${id}">${c.matricula} - ${c.modelo}</option>`;
+        let opt = `<option value="${id}">${c.matricula} (${c.modelo})</option>`;
         if (c.estado === 'Disponible') sSal.innerHTML += opt;
         if (c.estado === 'Prestado') sEnt.innerHTML += opt;
     }
 });
 
+// Cambiar entre pestañas
 function showTab(tabId) {
-    document.getElementById('btn-container-salida').style.display = tabId === 'tab-salida' ? 'block' : 'none';
-    document.getElementById('tab-entrada-actions').style.display = tabId === 'tab-entrada' ? 'block' : 'none';
-    document.getElementById('btn-sal').className = tabId === 'tab-salida' ? 'btn-tab active' : 'btn-tab';
-    document.getElementById('btn-ent').className = tabId === 'tab-entrada' ? 'btn-tab active' : 'btn-tab';
+    const isSalida = tabId === 'tab-salida';
+    document.getElementById('action-salida').style.display = isSalida ? 'block' : 'none';
+    document.getElementById('action-entrada').style.display = isSalida ? 'none' : 'block';
+    
+    document.getElementById('btn-sal').className = isSalida ? 'btn-tab active' : 'btn-tab';
+    document.getElementById('btn-ent').className = isSalida ? 'btn-tab' : 'btn-tab active';
+    
+    // Limpiar campos al cambiar
+    if(!isSalida) {
+        document.getElementById('contrato-imprimible').querySelectorAll('input, textarea').forEach(el => el.value = "");
+    }
 }
 
+// Rellenar datos de salida
 function autoRellenarCoche() {
     const id = document.getElementById('p-veh-select').value;
-    if (id) {
+    if (id && listaCochesGlobal[id]) {
         const c = listaCochesGlobal[id];
         document.getElementById('p-mod').value = c.modelo;
         document.getElementById('p-kms').value = c.kms;
@@ -49,14 +58,14 @@ function autoRellenarCoche() {
     }
 }
 
-// BUSCAR VEHÍCULO PRESTADO
+// BUSCAR CONTRATO PARA RECOGIDA
 async function verEstadoSalida() {
     const idCoche = document.getElementById('d-veh-select').value;
     if (!idCoche) return;
 
     const matricula = listaCochesGlobal[idCoche].matricula;
     
-    // Buscar contrato activo para esa matrícula
+    // Buscar último contrato activo
     const snap = await db.ref('contratos')
         .orderByChild('matricula')
         .equalTo(matricula)
@@ -65,7 +74,7 @@ async function verEstadoSalida() {
 
     if (snap.exists()) {
         const d = Object.values(snap.val())[0];
-        // Rellenar datos históricos en la columna izquierda
+        // Rellenar parte izquierda (histórico)
         document.getElementById('p-nom').value = d.nombre || "";
         document.getElementById('p-dni').value = d.dni || "";
         document.getElementById('p-tel').value = d.tel || "";
@@ -74,16 +83,16 @@ async function verEstadoSalida() {
         document.getElementById('p-mod').value = d.modelo;
         document.getElementById('p-kms').value = d.kms;
         document.getElementById('p-comb').value = d.combustible || "";
-        document.getElementById('p-f-salida').value = d.fechaSalida.split(',')[0];
+        document.getElementById('p-f-salida').value = d.fechaSalida ? d.fechaSalida.split(',')[0] : "";
         
-        // Preparar fecha de hoy para la recogida
+        // Preparar parte derecha (entrada)
         document.getElementById('d-f-entrada').value = new Date().toLocaleDateString();
     }
 }
 
 async function finalizarSalida() {
     const idCoche = document.getElementById('p-veh-select').value;
-    if (!idCoche) return alert("Selecciona un coche");
+    if (!idCoche || !document.getElementById('p-nom').value) return alert("Rellena el nombre y selecciona coche");
 
     const contrato = {
         matricula: listaCochesGlobal[idCoche].matricula,
@@ -107,14 +116,21 @@ async function finalizarSalida() {
 
 async function finalizarEntrada() {
     const idCoche = document.getElementById('d-veh-select').value;
-    if (!idCoche) return alert("Selecciona vehículo");
+    if (!idCoche || !document.getElementById('d-kms').value) return alert("Introduce los KMs de entrada");
 
     const matricula = listaCochesGlobal[idCoche].matricula;
     const snap = await db.ref('contratos').orderByChild('matricula').equalTo(matricula).limitToLast(1).once('value');
 
     if (snap.exists()) {
         const key = Object.keys(snap.val())[0];
-        await db.ref('contratos/' + key).update({ estado: "Cerrado", fechaEntrada: new Date().toLocaleString() });
+        // Cerrar contrato
+        await db.ref('contratos/' + key).update({ 
+            estado: "Cerrado", 
+            fechaEntrada: new Date().toLocaleString(),
+            kmsEntrada: document.getElementById('d-kms').value,
+            danosEntrada: document.getElementById('d-danos').value
+        });
+        // Liberar coche
         await db.ref('coches/' + idCoche).update({ 
             estado: 'Disponible', 
             kms: document.getElementById('d-kms').value,

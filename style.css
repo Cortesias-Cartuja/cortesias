@@ -1,4 +1,4 @@
-/* --- ESTILOS VISUALES (Lo que ves en pantalla) --- */
+/* --- ESTILOS VISUALES (Pantalla) --- */
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     background: #f4f6f9; 
@@ -33,64 +33,74 @@ label { font-size: 11px; color: #6c757d; font-weight: bold; margin-bottom: 4px; 
 .btn-main { width: 100%; padding: 18px; background: #28a745; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; }
 .btn-main:hover { background: #218838; }
 
-/* Estilos para el canvas de firma */
 #signature-pad { border: 1px dashed #ccc; background: #f9f9f9; border-radius: 8px; width: 100%; height: 180px; }
 
-/* --- REGLAS DE IMPRESIÓN (Lo que sale en papel) --- */
+.upload-info { font-size: 13px; color: #0056b3; margin-top: 10px; font-weight: bold; text-align: center; }
+
+/* --- REGLAS DE IMPRESIÓN (Papel A4) --- */
 @media print {
-    /* 1. Reset de página para evitar saltos locos */
-    @page { size: A4; margin: 1cm; }
+    @page { 
+        size: A4; 
+        margin: 0.8cm; /* Márgenes estrechos para que quepa todo */
+    }
     
-    body { background: white; padding: 0; margin: 0; }
-    .form-container { width: 100%; max-width: 100%; box-shadow: none; margin: 0; padding: 0; }
+    /* 1. Reset General */
+    body { background: white; padding: 0; margin: 0; font-size: 10pt; }
+    .form-container { width: 100%; max-width: 100%; box-shadow: none; margin: 0; padding: 0; border: none; }
 
-    /* 2. Ocultar elementos de navegación y botones */
-    .tabs, .btn-main, .btn-clear, a[href="admin.html"], .upload-info, #upload-status, #btn-salida {
+    /* 2. OCULTAR TODO LO INNECESARIO */
+    /* Aquí añadimos el mensaje de carga y todos los botones para que no salgan en el papel */
+    .tabs, .btn-main, .btn-clear, .btn-tab, a, 
+    .upload-info, #upload-status, #btn-salida, .header-img + div {
         display: none !important;
+        visibility: hidden !important;
     }
 
-    /* 3. Asegurar que solo se imprima la pestaña activa (Salida) */
+    /* 3. Forzar visibilidad de la pestaña de salida */
     #tab-entrada { display: none !important; }
-    #tab-salida { display: block !important; }
+    #tab-salida { display: block !important; visibility: visible !important; }
 
-    /* 4. Estilizar inputs para que parezcan texto impreso */
-    input, select, textarea {
-        border: none !important;
-        padding: 5px 0 !important;
-        background: transparent !important;
-        font-size: 13px !important;
-        font-weight: bold;
-    }
-
-    /* 5. Ajustar secciones para que quepan en una hoja */
+    /* 4. Estilo de secciones tipo contrato */
     .section {
         border: none !important;
-        border-bottom: 1px solid #000 !important;
-        margin-bottom: 10px !important;
+        border-bottom: 1px solid #ccc !important;
+        margin-bottom: 8px !important;
         padding: 5px 0 !important;
-        border-radius: 0 !important;
-    }
-
-    .grid-3, .grid-2 {
-        gap: 10px !important;
-        margin-bottom: 5px !important;
+        page-break-inside: avoid; /* Evita que una sección se corte entre dos páginas */
     }
 
     h3 {
-        font-size: 14px !important;
-        margin-bottom: 5px !important;
-        background: #eee !important;
-        padding: 5px !important;
+        font-size: 11pt !important;
+        background: #f0f0f0 !important;
+        padding: 4px !important;
+        border: 1px solid #ddd !important;
         -webkit-print-color-adjust: exact;
     }
 
-    /* 6. Firma: Tamaño fijo para que no se mueva */
-    #signature-pad {
-        border: 1px solid #000 !important;
-        height: 120px !important;
-        width: 300px !important;
-        display: block;
+    /* 5. Inputs como texto plano */
+    input, select, textarea {
+        border: none !important;
+        background: transparent !important;
+        font-weight: bold;
+        padding: 2px 0 !important;
+        font-size: 10pt !important;
+        color: black !important;
     }
 
-    label { color: #000 !important; font-size: 10px !important; }
+    /* 6. Firma compacta */
+    #signature-pad {
+        border: 1px solid #000 !important;
+        height: 100px !important; /* Más pequeña para ahorrar espacio */
+        width: 280px !important;
+        margin-top: 5px;
+    }
+
+    .grid-3, .grid-2 {
+        display: flex !important; /* Cambiamos a flex para mejor control en papel */
+        flex-wrap: wrap;
+        gap: 15px !important;
+        margin-bottom: 5px !important;
+    }
+
+    label { color: #444 !important; font-size: 8pt !important; }
 }

@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Flota - Salidas y Entradas</title>
+  <title>Sistema de Gestión de Cortesías</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -25,64 +24,86 @@
 
     <div id="contrato-imprimible">
       <div class="section">
-        <h3>DATOS DEL VEHÍCULO DE CORTESÍA</h3>
-        <div class="grid-3">
+        <h3>🚗 DATOS DEL VEHÍCULO Y ASESOR</h3>
+        <div class="grid-4">
           <div>
             <label>Vehículo (Matrícula)</label>
             <select id="p-veh-select" onchange="autoRellenarCoche()" class="no-print">
-              <option value="">Cargando stock...</option>
+              <option value="">Cargando...</option>
             </select>
             <input id="p-mat-print" class="only-print" readonly>
           </div>
           <div><label>Modelo</label><input id="p-mod" readonly></div>
-          <div><label>Nº Orden / ASPV</label><input id="p-or"></div>
+          <div><label>Nº Orden (OR)</label><input id="p-or"></div>
+          <div><label>Asesor</label>
+            <select id="p-asesor">
+              <option value="">Elegir Asesor...</option>
+              <option value="Asesor 1">Asesor 1</option>
+              <option value="Asesor 2">Asesor 2</option>
+              <option value="Asesor 3">Asesor 3</option>
+            </select>
+          </div>
         </div>
       </div>
 
       <div class="section">
-        <h3>DATOS DEL CONDUCTOR Y CLIENTE</h3>
+        <h3>👤 DATOS DEL CONDUCTOR / CLIENTE</h3>
         <div class="grid-3">
           <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
-          <div><label>DNI / NIE / PAS.</label><input id="p-dni"></div>
+          <div><label>DNI / NIE</label><input id="p-dni"></div>
           <div><label>Código Postal</label><input id="p-cp"></div>
         </div>
         <div class="grid-3">
           <div><label>Teléfono</label><input id="p-tel"></div>
           <div><label>Matrícula Cliente</label><input id="p-mat-c"></div>
-          <div><label>Tarifa Diaria (€)</label><input id="p-tarifa"></div>
+          <div><label>Compañía Seguros</label><input id="p-cia-seguros"></div>
+        </div>
+        <div class="grid-2">
+            <div><label>Póliza Seguro</label><input id="p-poliza"></div>
+            <div><label>Teléfono Aseguradora</label><input id="p-tel-seguro"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>💰 TARIFAS Y CARGOS</h3>
+        <div class="grid-tarifas">
+            <label class="radio-label"><input type="radio" name="tarifa" value="GRATUITA"> GRATUITA (Franquicia 300€)</label>
+            <label class="radio-label"><input type="radio" name="tarifa" value="REDUCIDA"> REDUCIDA (15€/día)</label>
+            <label class="radio-label"><input type="radio" name="tarifa" value="ESTANDAR"> ESTANDAR (30€/día)</label>
         </div>
       </div>
 
       <div class="grid-2-col">
-        <div class="sub-section" id="col-salida">
-          <h4 style="background: #e1effe; color: #1e429f;">ESTADO EN LA ENTREGA (SALIDA)</h4>
-          <div class="data-row"><label>Fecha y Hora Salida:</label><input id="p-f-salida" readonly placeholder="Se grabará al emitir"></div>
-          <div class="data-row"><label>KMs de Salida:</label><input id="p-kms" type="number"></div>
+        <div class="sub-section">
+          <h4 style="background: #e1effe;">ESTADO EN LA ENTREGA</h4>
+          <div class="data-row"><label>Fecha/Hora Salida:</label><input id="p-f-salida" readonly></div>
+          <div class="data-row"><label>KMs de Salida:</label><input id="p-kms"></div>
           <div class="data-row"><label>Combustible Salida:</label><input id="p-comb"></div>
-          <div class="data-row"><label>Observaciones/Daños:</label><textarea id="p-obs"></textarea></div>
+          <div class="data-row"><label>Observaciones:</label><textarea id="p-obs"></textarea></div>
           <div class="space-firma"><p>FIRMA ENTREGA CLIENTE</p></div>
         </div>
 
-        <div class="sub-section" id="col-entrada">
-          <h4 style="background: #def7ec; color: #03543f;">ESTADO EN LA RECOGIDA (ENTRADA)</h4>
-          <div class="data-row"><label>Fecha y Hora Entrada:</label><input id="d-f-entrada" readonly placeholder="Se grabará al recoger"></div>
-          <div class="data-row"><label>KMs de Entrada:</label><input id="d-kms" type="number"></div>
+        <div class="sub-section">
+          <h4 style="background: #def7ec;">ESTADO EN LA RECOGIDA</h4>
+          <div class="data-row"><label>Fecha/Hora Entrada:</label><input id="d-f-entrada" readonly></div>
+          <div class="data-row"><label>KMs de Entrada:</label><input id="d-kms"></div>
           <div class="data-row"><label>Combustible Entrada:</label><input id="d-comb"></div>
-          <div class="data-row"><label>Nuevos Daños/Notas:</label><textarea id="d-danos"></textarea></div>
+          <div class="data-row"><label>Nuevos Daños:</label><textarea id="d-danos"></textarea></div>
           <div class="space-firma"><p>FIRMA RECOGIDA CLIENTE</p></div>
         </div>
       </div>
     </div>
 
-    <div class="no-print action-bar" style="margin-top:20px;">
+    <div class="no-print action-bar">
       <div id="action-salida">
-        <button class="btn-main" onclick="finalizarSalida()">GRABAR E IMPRIMIR SALIDA</button>
+        <button class="btn-main" onclick="finalizarSalida()">💾 GRABAR E IMPRIMIR SALIDA</button>
       </div>
-      
-      <div id="action-entrada" style="display:none; background: #f8fafc; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
-        <label style="font-size: 14px; margin-bottom: 10px; color: #1e293b;">SELECCIONAR COCHE QUE LLEGA AL TALLER:</label>
-        <select id="d-veh-select" onchange="verEstadoSalida()" style="font-weight: bold; border: 2px solid #3b82f6;"></select>
-        <button class="btn-main btn-blue" onclick="finalizarEntrada()">FINALIZAR RECOGIDA E IMPRIMIR</button>
+      <div id="action-entrada" style="display:none;">
+        <div class="selector-recogida">
+          <label>COCHE A RECOGER:</label>
+          <select id="d-veh-select" onchange="verEstadoSalida()"></select>
+        </div>
+        <button class="btn-main btn-blue" onclick="finalizarEntrada()">✅ FINALIZAR RECOGIDA E IMPRIMIR</button>
       </div>
     </div>
   </div>

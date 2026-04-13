@@ -1,13 +1,11 @@
-:root {
-    --skoda-green: #4BA82E;
-    --dark-blue: #1e3a8a;
-}
-
+/* =========================================
+   ESTILOS GENERALES (PANTALLA)
+   ========================================= */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f1f5f9;
     margin: 0;
     padding: 0;
+    background-color: #f1f5f9;
 }
 
 .form-container {
@@ -15,116 +13,139 @@ body {
     margin: 20px auto;
     background: #fff;
     padding: 20px;
-    min-height: 1050px; /* Asegura que la hoja se vea rellena */
     box-sizing: border-box;
 }
 
-.border-green {
-    border: 2px solid var(--skoda-green) !important;
-}
-
+/* SECCIONES COMPACTAS */
 .section {
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 4px;
+    border: 1px solid #ddd; /* Borde gris original */
+    padding: 10px;
+    margin-bottom: 10px;
 }
 
 h3 {
-    margin: -12px -12px 10px -12px;
-    background: var(--skoda-green);
-    color: white;
-    padding: 5px 12px;
+    margin: 0 0 8px 0;
     font-size: 13px;
-    border-radius: 2px 2px 0 0;
+    color: #1e3a8a; /* Azul original */
+    border-bottom: 2px solid #1e3a8a;
+    display: inline-block;
 }
 
 h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     font-size: 11px;
-    color: var(--skoda-green);
-    border-bottom: 1px solid var(--skoda-green);
-    padding-bottom: 3px;
+    text-align: center;
+    background: #f1f5f9;
 }
 
-/* Estilo de líneas de entrada */
-.input-line {
-    border: none !important;
-    border-bottom: 1px solid #999 !important;
-    border-radius: 0 !important;
-    padding: 4px 0 !important;
+/* GRIDS AJUSTADOS */
+.grid-4, .grid-3 {
+    display: grid;
+    gap: 10px;
 }
 
-.input-clean {
-    border: none !important;
-    background: #f9f9f9 !important;
+.grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* SUBSECCIONES */
+.sub-section {
+    border: 1px solid #ddd; /* Borde gris original */
+    padding: 10px;
+}
+
+.data-row {
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.data-row label {
+    width: 100px;
+    font-size: 11px;
+}
+
+.data-row input {
+    flex: 1;
+}
+
+/* FORMULARIOS */
+label {
+    display: block;
+    font-size: 11px;
     font-weight: bold;
+    margin-bottom: 2px;
 }
 
-.info-box {
-    background: #f1f8f0;
-    padding: 8px;
-    margin-top: 10px;
-    border: 1px dashed var(--skoda-green);
-}
-
-.info-box input {
-    border: none;
-    background: transparent;
-    font-weight: bold;
-    color: #333;
-}
-
-.tarifa-style {
-    border: 2px solid var(--dark-blue);
-    background: #eef2ff;
-    font-weight: bold;
-}
-
-.space-firma {
-    height: 90px;
+input, select, textarea {
+    width: 100%;
+    padding: 5px;
     border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+textarea {
+    height: 40px;
+    resize: none;
+}
+
+/* FIRMAS */
+.space-firma {
+    height: 80px;
+    border: 1px dashed #ccc;
     margin-top: 10px;
-    background: #fafafa;
     display: flex;
     align-items: flex-end;
     justify-content: center;
 }
 
-.footer-legal {
-    margin-top: 30px;
-    font-size: 9px;
-    color: #444;
-    line-height: 1.3;
-    text-align: justify;
+.space-firma p {
+    font-size: 10px;
+    color: #888;
 }
 
-/* --- REGLAS DE IMPRESIÓN --- */
+/* BOTONES */
+.btn-main {
+    background-color: #10b981;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* CLASES AUXILIARES */
+.no-print { display: block; }
+.only-print { display: none; }
+
+/* =========================================
+   REGLAS DE IMPRESIÓN (A4)
+   ========================================= */
 @media print {
-    @page { margin: 1cm; }
-    
-    body { background: white; }
-    
-    .form-container {
-        margin: 0;
-        padding: 0.5cm !important;
-        width: 100%;
-        min-height: 100%;
-    }
-
     .no-print { display: none !important; }
-    .only-print-inline { 
-        display: inline-block !important; 
+    .only-print { display: block !important; }
+
+    /* ***************************************************
+       AJUSTE CRÍTICO: MÁRGENES DE UN CENTÍMETRO
+       Añadimos padding al contenedor principal para que
+       las líneas no se salgan del folio.
+       *************************************************** */
+    .form-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        padding: 1cm !important; /* Margen de seguridad solicitado */
+        box-shadow: none;
+        border: none;
+    }
+
+    input, select, textarea {
         border: none !important;
-        font-weight: bold !important;
-        font-size: 14px !important;
-    }
-
-    .section, .sub-section {
-        border: 2px solid var(--skoda-green) !important;
-        page-break-inside: avoid;
-    }
-
-    input {
         border-bottom: 1px solid #000 !important;
+        background: transparent !important;
     }
 }

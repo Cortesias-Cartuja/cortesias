@@ -59,6 +59,22 @@
           <div><label>Teléfono Móvil</label><input id="p-tel" type="number"></div>
         </div>
 
+        <div style="display: grid; grid-template-columns: 80px 1fr; gap: 10px; margin-top: 5px;">
+          <div>
+            <label>Vía</label>
+            <select id="p-tipo-via">
+              <option value="Cl.">Cl.</option>
+              <option value="Av.">Av.</option>
+              <option value="Pz.">Pz.</option>
+              <option value="Crta.">Crta.</option>
+            </select>
+          </div>
+          <div>
+            <label>Dirección completa (Calle, número, piso, ciudad)</label>
+            <input id="p-dir" placeholder="Ej: Mayor 15, 2ºB, Madrid">
+          </div>
+        </div>
+
         <div class="grid-3" style="margin-top:5px;">
           <div><label>Carnet: Fecha Expedición</label><input id="p-carnet-exp" type="date"></div>
           <div><label>Carnet: Fecha Caducidad</label><input id="p-carnet-cad" type="date"></div>
@@ -72,8 +88,8 @@
             <label>TIPO DE TARIFA</label>
             <select id="p-tarifa-select" style="border: 2px solid #1e3a8a; font-weight: bold; width: 100%;">
                 <option value="GRATUITA">GRATUITA (Franquicia 300€)</option>
-                <option value="REDUCIDA">REDUCIDA (15€/día Franquicia 300€)</option>
-                <option value="ESTANDAR">ESTANDAR (30€/día Franquicia 300€)</option>
+                <option value="REDUCIDA">REDUCIDA (15€/día)</option>
+                <option value="ESTANDAR">ESTANDAR (30€/día)</option>
             </select>
           </div>
         </div>
@@ -99,8 +115,8 @@
         </div>
       </div>
 
-      <p style="font-size: 8px; color: #666; margin-top: 10px; line-height: 1.1;">
-        El cliente declara recibir el vehículo en perfecto estado y se compromete a su devolución en las mismas condiciones. En caso de siniestro culpable, se aplicará la franquicia correspondiente según la tarifa seleccionada. El cliente autoriza el tratamiento de sus datos para la gestión de este contrato.
+      <p style="font-size: 8px; color: #666; margin-top: 10px; line-height: 1;">
+        El cliente declara recibir el vehículo en perfecto estado y se compromete a su devolución en las mismas condiciones. En caso de siniestro culpable, se aplicará la franquicia correspondiente según la tarifa seleccionada.
       </p>
     </div>
 

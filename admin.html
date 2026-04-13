@@ -18,7 +18,8 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 12px; }
     th { text-align: left; padding: 10px; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
     td { padding: 10px; border-bottom: 1px solid #eee; }
-    .btn-edit { background: #3b82f6; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+    .btn-edit { background: #3b82f6; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; margin-right: 2px; }
+    .btn-print { background: #10b981; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; margin-right: 2px; }
     .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
     .seccion-historial { margin-top: 40px; border-top: 3px solid #1e3a8a; padding-top: 20px; }
   </style>
@@ -150,19 +151,15 @@
     const db = firebase.database();
 
     let cacheCoches = [];
-    let filtroActivo = 'Todos';
+    let cacheContratos = []; // Nueva caché para contratos
 
-    // --- GESTIÓN DE COCHES ---
+    // --- CARGA DE DATOS ---
     db.ref('coches').on('value', snap => {
         cacheCoches = [];
         let t=0, d=0, p=0, b=0;
         snap.forEach(child => {
-            const c = child.val(); c.id = child.key;
-            cacheCoches.push(c);
-            t++;
-            if(c.estado==='Disponible') d++;
-            else if(c.estado==='Prestado') p++;
-            else b++;
+            const c = child.val(); c.id = child.key; cacheCoches.push(c);
+            t++; if(c.estado==='Disponible') d++; else if(c.estado==='Prestado') p++; else b++;
         });
         document.getElementById('count-total').innerText = t;
         document.getElementById('count-dispo').innerText = d;
@@ -171,29 +168,84 @@
         pintarTabla();
     });
 
-    function cambiarFiltro(tipo) {
-        filtroActivo = tipo;
-        document.querySelectorAll('.dash-card').forEach(card => card.classList.remove('filtro-activo'));
-        document.getElementById('card-' + tipo).classList.add('filtro-activo');
-        pintarTabla();
+    db.ref('contratos').on('value', snap => {
+        const body = document.getElementById('historial-body');
+        body.innerHTML = "";
+        cacheContratos = [];
+        snap.forEach(child => {
+            const d = child.val(); const id = child.key;
+            d.id = id; cacheContratos.push(d);
+            body.innerHTML += `<tr>
+                <td>${d.fechaSalida}</td>
+                <td><strong>${d.matricula}</strong></td>
+                <td>${d.nombre}<br><small>${d.dni}</small></td>
+                <td>${d.kms} / ${d.kmsEntrada || '-'}</td>
+                <td>${d.fechaEntrada ? '✅ Finalizado' : '🚗 En uso'}</td>
+                <td>
+                    <button class="btn-print" onclick="reimprimirContrato('${id}')" title="Reimprimir">🖨️</button>
+                    <button class="btn-edit" onclick="abrirEditorContrato('${id}')" title="Editar">✏️</button>
+                    <button class="btn-delete" onclick="eliminarContrato('${id}')" title="Borrar">🗑️</button>
+                </td>
+            </tr>`;
+        });
+    });
+
+    // --- FUNCIÓN DE REIMPRESIÓN ---
+    function reimprimirContrato(id) {
+        const d = cacheContratos.find(x => x.id === id);
+        if (!d) return;
+
+        // Abrimos la ventana de index.html
+        const win = window.open('index.html', '_blank');
+        
+        win.onload = function() {
+            // Inyectamos los datos en los campos del index
+            win.document.getElementById('p-nom').value = d.nombre || "";
+            win.document.getElementById('p-dni').value = d.dni || "";
+            win.document.getElementById('p-tel').value = d.tel || "";
+            win.document.getElementById('p-mat-c').value = d.matCliente || "";
+            win.document.getElementById('p-cp').value = d.cp || "";
+            win.document.getElementById('p-f-devolucion').value = d.fechaDevolucionPrevista || "";
+            win.document.getElementById('p-tarifa-select').value = d.tarifa || "GRATUITA";
+            win.document.getElementById('p-f-salida').value = d.fechaSalida || "";
+            win.document.getElementById('p-kms').value = d.kms || "";
+            win.document.getElementById('p-comb').value = d.combustible || "";
+            win.document.getElementById('p-obs').value = d.observaciones || "";
+            win.document.getElementById('p-mod').value = d.modelo || "";
+            win.document.getElementById('p-mat-print').value = d.matricula || "";
+            win.document.getElementById('p-or').value = d.or || "";
+            
+            // Datos del carnet (nuevos campos)
+            if(win.document.getElementById('p-carnet-exp')) win.document.getElementById('p-carnet-exp').value = d.carnetExp || "";
+            if(win.document.getElementById('p-carnet-cad')) win.document.getElementById('p-carnet-cad').value = d.carnetCad || "";
+
+            // Ocultamos selectores de asesor y coche para la impresión
+            win.document.getElementById('p-veh-select').style.display = "none";
+            win.document.getElementById('p-asesor-select').style.display = "none";
+            
+            // Lanzamos impresión tras un pequeño delay para que cargue todo
+            setTimeout(() => {
+                win.print();
+                // Opcional: win.close();
+            }, 500);
+        };
     }
 
+    // --- RESTO DE FUNCIONES (Guardar, Editar, Borrar...) ---
     function pintarTabla() {
         const body = document.getElementById('lista-body'); body.innerHTML = "";
         cacheCoches.forEach(c => {
-            if (filtroActivo === 'Todos' || c.estado === filtroActivo) {
-                let clasePill = c.estado === 'Disponible' ? 'bg-disponible' : (c.estado === 'Prestado' ? 'bg-prestado' : 'bg-baja');
-                body.innerHTML += `<tr>
-                    <td><strong>${c.matricula}</strong><br><small>${c.modelo}</small></td>
-                    <td><span class="status-pill ${clasePill}">${c.estado}</span></td>
-                    <td>${c.kms} km</td>
-                    <td>${c.seguroCia || '-'}</td>
-                    <td>
-                        <button class="btn-edit" onclick="editarCoche('${c.id}')">✏️</button>
-                        <button class="btn-delete" onclick="eliminarCoche('${c.id}')">🗑️</button>
-                    </td>
-                </tr>`;
-            }
+            let clasePill = c.estado === 'Disponible' ? 'bg-disponible' : (c.estado === 'Prestado' ? 'bg-prestado' : 'bg-baja');
+            body.innerHTML += `<tr>
+                <td><strong>${c.matricula}</strong><br><small>${c.modelo}</small></td>
+                <td><span class="status-pill ${clasePill}">${c.estado}</span></td>
+                <td>${c.kms} km</td>
+                <td>${c.seguroCia || '-'}</td>
+                <td>
+                    <button class="btn-edit" onclick="editarCoche('${c.id}')">✏️</button>
+                    <button class="btn-delete" onclick="eliminarCoche('${c.id}')">🗑️</button>
+                </td>
+            </tr>`;
         });
     }
 
@@ -234,42 +286,20 @@
 
     function eliminarCoche(id) { if(confirm("¿Eliminar coche?")) db.ref('coches/'+id).remove(); }
 
-    // --- GESTIÓN DE HISTORIAL (CONTRATOS) ---
-    db.ref('contratos').on('value', snap => {
-        const body = document.getElementById('historial-body');
-        body.innerHTML = "";
-        snap.forEach(child => {
-            const d = child.val(); const id = child.key;
-            body.innerHTML += `<tr>
-                <td>${d.fechaSalida}</td>
-                <td><strong>${d.matricula}</strong></td>
-                <td>${d.nombre}<br><small>${d.dni}</small></td>
-                <td>${d.kms} / ${d.kmsEntrada || '-'}</td>
-                <td>${d.fechaEntrada ? '✅ Finalizado' : '🚗 En uso'}</td>
-                <td>
-                    <button class="btn-edit" onclick="abrirEditorContrato('${id}')">✏️</button>
-                    <button class="btn-delete" onclick="eliminarContrato('${id}')">🗑️</button>
-                </td>
-            </tr>`;
-        });
-    });
-
     function abrirEditorContrato(id) {
-        db.ref('contratos/'+id).once('value', snap => {
-            const d = snap.val();
-            document.getElementById('edit-cont-id').value = id;
-            document.getElementById('ec-nombre').value = d.nombre;
-            document.getElementById('ec-dni').value = d.dni;
-            document.getElementById('ec-tel').value = d.tel;
-            document.getElementById('ec-matc').value = d.matCliente;
-            document.getElementById('ec-kms').value = d.kms;
-            document.getElementById('ec-kms-e').value = d.kmsEntrada || "";
-            document.getElementById('ec-fsalida').value = d.fechaSalida;
-            document.getElementById('ec-fentrada').value = d.fechaEntrada || "";
-            document.getElementById('ec-asesor').value = d.asesor;
-            document.getElementById('edit-contrato-box').style.display = "block";
-            window.location.hash = "edit-contrato-box";
-        });
+        const d = cacheContratos.find(x => x.id === id);
+        document.getElementById('edit-cont-id').value = id;
+        document.getElementById('ec-nombre').value = d.nombre;
+        document.getElementById('ec-dni').value = d.dni;
+        document.getElementById('ec-tel').value = d.tel;
+        document.getElementById('ec-matc').value = d.matCliente;
+        document.getElementById('ec-kms').value = d.kms;
+        document.getElementById('ec-kms-e').value = d.kmsEntrada || "";
+        document.getElementById('ec-fsalida').value = d.fechaSalida;
+        document.getElementById('ec-fentrada').value = d.fechaEntrada || "";
+        document.getElementById('ec-asesor').value = d.asesor;
+        document.getElementById('edit-contrato-box').style.display = "block";
+        window.location.hash = "edit-contrato-box";
     }
 
     function guardarEdicionContrato() {
@@ -285,17 +315,13 @@
             fechaEntrada: document.getElementById('ec-fentrada').value,
             asesor: document.getElementById('ec-asesor').value
         };
-        db.ref('contratos/'+id).update(upd).then(() => {
-            cerrarEditorContrato();
-            alert("Contrato actualizado");
-        });
+        db.ref('contratos/'+id).update(upd).then(() => { cerrarEditorContrato(); alert("Contrato actualizado"); });
     }
 
     function cerrarEditorContrato() { document.getElementById('edit-contrato-box').style.display = "none"; }
-    function eliminarContrato(id) { if(confirm("¿Borrar este registro del historial?")) db.ref('contratos/'+id).remove(); }
+    function eliminarContrato(id) { if(confirm("¿Borrar registro?")) db.ref('contratos/'+id).remove(); }
     function borrarHistorialCompleto() { if(confirm("¿BORRAR TODO EL HISTORIAL?")) db.ref('contratos').remove(); }
 
-    // --- ASESORES ---
     function addAsesor() {
         const n = document.getElementById('n-asesor').value;
         if(n) db.ref('config/asesores').push(n).then(()=>document.getElementById('n-asesor').value="");
@@ -305,7 +331,6 @@
         snap.forEach(c => { d.innerHTML += `<span style="background:#e2e8f0; padding:5px 10px; border-radius:15px; font-size:11px; margin-right:5px;">${c.val()} <button onclick="db.ref('config/asesores/${c.key}').remove()" style="border:none; color:red; cursor:pointer;">x</button></span> `; });
     });
 
-    // --- EXCEL ---
     async function exportarExcel() {
         const snap = await db.ref('contratos').once('value');
         let csv = "Fecha Prestamo;Matricula Cortesia;Nombre;DNI;Tel;Matricula Cliente;Asesor;Dev. Prevista;Dev. Real;KMs Recorridos\n";
@@ -315,10 +340,7 @@
             csv += `${d.fechaSalida};${d.matricula};${d.nombre};${d.dni || ""};${d.tel || ""};${d.matCliente || ""};${d.asesor || ""};${d.fechaDevolucionPrevista || ""};${d.fechaEntrada || "Pendiente"};${kmsR}\n`;
         });
         const blob = new Blob(["\ufeff" + csv], {type:'text/csv;charset=utf-8;'});
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "Historial_Flota.csv";
-        link.click();
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Historial_Flota.csv"; link.click();
     }
   </script>
 </body>

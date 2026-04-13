@@ -8,13 +8,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <style>
     .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 5px solid #1e3a8a; cursor: pointer; transition: 0.2s; }
-    .dash-card:hover { transform: translateY(-3px); }
+    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 5px solid #1e3a8a; cursor: pointer; }
     .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; color: white; }
     .bg-disponible { background: #10b981; }
     .bg-prestado { background: #f59e0b; }
     .bg-baja { background: #ef4444; }
-    /* Estilo original de filtro activo */
     .filtro-activo { outline: 3px solid #1e3a8a; background: #f8fafc !important; }
     #admin-content { display: none; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 12px; }
@@ -88,7 +86,7 @@
         <h3 style="color:#1e3a8a;">📑 GESTIÓN INDIVIDUAL DE PRÉSTAMOS (HISTORIAL)</h3>
         
         <div id="edit-contrato-box" class="sub-section" style="display:none; background:#f8fafc; border:2px solid #3b82f6; margin-bottom:20px;">
-            <h4 style="color:#3b82f6;">✏️ EDITAR REGISTRO</h4>
+            <h4 style="color:#3b82f6;">✏️ EDITAR REGISTRO DE PRÉSTAMO</h4>
             <input type="hidden" id="edit-cont-id">
             <div class="grid-3">
                 <div><label>Cliente</label><input id="ec-nombre"></div>
@@ -106,7 +104,7 @@
                 <div><label>Asesor</label><input id="ec-asesor"></div>
             </div>
             <div style="margin-top:15px; display:flex; gap:10px;">
-                <button onclick="guardarEdicionContrato()" style="background:#3b82f6; color:white; padding:10px; border:none; border-radius:4px; flex:1; cursor:pointer;">ACTUALIZAR</button>
+                <button onclick="guardarEdicionContrato()" style="background:#3b82f6; color:white; padding:10px; border:none; border-radius:4px; flex:1; cursor:pointer;">ACTUALIZAR CONTRATO</button>
                 <button onclick="cerrarEditorContrato()" style="background:#64748b; color:white; padding:10px; border:none; border-radius:4px; flex:1; cursor:pointer;">CANCELAR</button>
             </div>
         </div>
@@ -153,8 +151,7 @@
     const db = firebase.database();
 
     let cacheCoches = [];
-    let cacheContratos = [];
-    let filtroActivo = 'Todos';
+    let cacheContratos = []; // Nueva caché para contratos
 
     // --- CARGA DE DATOS ---
     db.ref('coches').on('value', snap => {
@@ -193,43 +190,16 @@
         });
     });
 
-    // --- FUNCIÓN DE FILTRADO (CORREGIDA) ---
-    function cambiarFiltro(tipo) {
-        filtroActivo = tipo;
-        // Efecto visual original
-        document.querySelectorAll('.dash-card').forEach(card => card.classList.remove('filtro-activo'));
-        document.getElementById('card-' + tipo).classList.add('filtro-activo');
-        // Re-renderizar tabla
-        pintarTabla();
-    }
-
-    function pintarTabla() {
-        const body = document.getElementById('lista-body'); body.innerHTML = "";
-        cacheCoches.forEach(c => {
-            // Lógica de filtrado
-            if (filtroActivo === 'Todos' || c.estado === filtroActivo) {
-                let clasePill = c.estado === 'Disponible' ? 'bg-disponible' : (c.estado === 'Prestado' ? 'bg-prestado' : 'bg-baja');
-                body.innerHTML += `<tr>
-                    <td><strong>${c.matricula}</strong><br><small>${c.modelo}</small></td>
-                    <td><span class="status-pill ${clasePill}">${c.estado}</span></td>
-                    <td>${c.kms} km</td>
-                    <td>${c.seguroCia || '-'}</td>
-                    <td>
-                        <button class="btn-edit" onclick="editarCoche('${c.id}')">✏️</button>
-                        <button class="btn-delete" onclick="eliminarCoche('${c.id}')">🗑️</button>
-                    </td>
-                </tr>`;
-            }
-        });
-    }
-
-    // --- REIMPRESIÓN ---
+    // --- FUNCIÓN DE REIMPRESIÓN ---
     function reimprimirContrato(id) {
         const d = cacheContratos.find(x => x.id === id);
         if (!d) return;
+
+        // Abrimos la ventana de index.html
         const win = window.open('index.html', '_blank');
+        
         win.onload = function() {
-            // Rellenar campos (incluidos carnets y OR)
+            // Inyectamos los datos en los campos del index
             win.document.getElementById('p-nom').value = d.nombre || "";
             win.document.getElementById('p-dni').value = d.dni || "";
             win.document.getElementById('p-tel').value = d.tel || "";
@@ -242,19 +212,43 @@
             win.document.getElementById('p-comb').value = d.combustible || "";
             win.document.getElementById('p-obs').value = d.observaciones || "";
             win.document.getElementById('p-mod').value = d.modelo || "";
-            win.document.getElementById('p-mat-print').value = d.matricula || ""; // Matrícula para imprimir
+            win.document.getElementById('p-mat-print').value = d.matricula || "";
             win.document.getElementById('p-or').value = d.or || "";
+            
+            // Datos del carnet (nuevos campos)
             if(win.document.getElementById('p-carnet-exp')) win.document.getElementById('p-carnet-exp').value = d.carnetExp || "";
             if(win.document.getElementById('p-carnet-cad')) win.document.getElementById('p-carnet-cad').value = d.carnetCad || "";
 
-            // Preparar para impresión
+            // Ocultamos selectores de asesor y coche para la impresión
             win.document.getElementById('p-veh-select').style.display = "none";
             win.document.getElementById('p-asesor-select').style.display = "none";
-            setTimeout(() => { win.print(); }, 500);
+            
+            // Lanzamos impresión tras un pequeño delay para que cargue todo
+            setTimeout(() => {
+                win.print();
+                // Opcional: win.close();
+            }, 500);
         };
     }
 
-    // --- OTRAS FUNCIONES (Coches, Asesores, Excel) ---
+    // --- RESTO DE FUNCIONES (Guardar, Editar, Borrar...) ---
+    function pintarTabla() {
+        const body = document.getElementById('lista-body'); body.innerHTML = "";
+        cacheCoches.forEach(c => {
+            let clasePill = c.estado === 'Disponible' ? 'bg-disponible' : (c.estado === 'Prestado' ? 'bg-prestado' : 'bg-baja');
+            body.innerHTML += `<tr>
+                <td><strong>${c.matricula}</strong><br><small>${c.modelo}</small></td>
+                <td><span class="status-pill ${clasePill}">${c.estado}</span></td>
+                <td>${c.kms} km</td>
+                <td>${c.seguroCia || '-'}</td>
+                <td>
+                    <button class="btn-edit" onclick="editarCoche('${c.id}')">✏️</button>
+                    <button class="btn-delete" onclick="eliminarCoche('${c.id}')">🗑️</button>
+                </td>
+            </tr>`;
+        });
+    }
+
     function guardarCoche() {
         const id = document.getElementById('edit-id').value;
         const c = {

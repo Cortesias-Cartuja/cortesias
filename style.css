@@ -1,151 +1,24 @@
-/* =========================================
-   ESTILOS GENERALES (PANTALLA)
-   ========================================= */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f1f5f9;
-}
+/* ... Tus estilos anteriores ... */
 
-.form-container {
-    max-width: 850px;
-    margin: 20px auto;
-    background: #fff;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-/* SECCIONES COMPACTAS */
-.section {
-    border: 1px solid #ddd; /* Borde gris original */
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-h3 {
-    margin: 0 0 8px 0;
-    font-size: 13px;
-    color: #1e3a8a; /* Azul original */
-    border-bottom: 2px solid #1e3a8a;
-    display: inline-block;
-}
-
-h4 {
-    margin: 0 0 8px 0;
-    font-size: 11px;
-    text-align: center;
-    background: #f1f5f9;
-}
-
-/* GRIDS AJUSTADOS */
-.grid-4, .grid-3 {
-    display: grid;
-    gap: 10px;
-}
-
-.grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-
-.grid-2-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-/* SUBSECCIONES */
-.sub-section {
-    border: 1px solid #ddd; /* Borde gris original */
-    padding: 10px;
-}
-
-.data-row {
-    display: flex;
-    margin-bottom: 5px;
-}
-
-.data-row label {
-    width: 100px;
-    font-size: 11px;
-}
-
-.data-row input {
-    flex: 1;
-}
-
-/* FORMULARIOS */
-label {
-    display: block;
-    font-size: 11px;
-    font-weight: bold;
-    margin-bottom: 2px;
-}
-
-input, select, textarea {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-}
-
-textarea {
-    height: 40px;
-    resize: none;
-}
-
-/* FIRMAS */
-.space-firma {
-    height: 80px;
-    border: 1px dashed #ccc;
-    margin-top: 10px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-
-.space-firma p {
-    font-size: 10px;
-    color: #888;
-}
-
-/* BOTONES */
-.btn-main {
-    background-color: #10b981;
-    color: #fff;
-    border: none;
-    padding: 10px;
-    width: 100%;
-    cursor: pointer;
-}
-
-/* CLASES AUXILIARES */
-.no-print { display: block; }
-.only-print { display: none; }
-
-/* =========================================
-   REGLAS DE IMPRESIÓN (A4)
-   ========================================= */
 @media print {
     .no-print { display: none !important; }
     .only-print { display: block !important; }
 
-    /* ***************************************************
-       AJUSTE CRÍTICO: MÁRGENES DE UN CENTÍMETRO
-       Añadimos padding al contenedor principal para que
-       las líneas no se salgan del folio.
-       *************************************************** */
     .form-container {
         width: 100%;
-        max-width: 100%;
         margin: 0;
-        padding: 1cm !important; /* Margen de seguridad solicitado */
-        box-shadow: none;
-        border: none;
+        padding: 1cm !important; /* Margen de seguridad */
+        border: none !important;
     }
 
+    /* Ocultar bordes de inputs al imprimir para que parezca un contrato */
     input, select, textarea {
         border: none !important;
         border-bottom: 1px solid #000 !important;
         background: transparent !important;
+    }
+
+    .section, .sub-section {
+        border: 1px solid #ccc !important; /* Mantener línea gris suave */
     }
 }

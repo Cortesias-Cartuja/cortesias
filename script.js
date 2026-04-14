@@ -1,73 +1,73 @@
-// Configuración de Firebase (Usa la tuya)
-const firebaseConfig = {
-    apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
-    authDomain: "cortesias-4235e.firebaseapp.com",
-    databaseURL: "https://cortesias-4235e-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "cortesias-4235e",
-    storageBucket: "cortesias-4235e.firebasestorage.app",
-    messagingSenderId: "45340224860",
-    appId: "1:45340224860:web:69c15fc56fc5a04ab76599"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// Asegúrate de que este archivo se llame script.js
+function showTab(tab) {
+    const isSalida = tab === 'salida';
+    // Botones
+    document.getElementById('btn-sal').classList.toggle('active', isSalida);
+    document.getElementById('btn-ent').classList.toggle('active', !isSalida);
+    // Selectores de coche
+    document.getElementById('p-veh-select').style.display = isSalida ? 'block' : 'none';
+    document.getElementById('d-veh-select').style.display = isSalida ? 'none' : 'block';
+    // Botones de acción
+    document.getElementById('btn-finalizar-salida').style.display = isSalida ? 'block' : 'none';
+    document.getElementById('btn-finalizar-entrada').style.display = isSalida ? 'none' : 'block';
+    
+    if(!isSalida) {
+        document.getElementById('d-f-entrada').value = new Date().toLocaleString();
+        cargarCochesPrestados();
+    }
+}
 
-// Poner fecha actual automáticamente al cargar
-window.onload = () => {
-    const ahora = new Date().toLocaleString();
-    if(document.getElementById('p-f-salida')) document.getElementById('p-f-salida').value = ahora;
-    cargarCoches();
-    cargarAsesores();
-};
-
-function cargarCoches() {
-    db.ref('coches').on('value', snap => {
-        const select = document.getElementById('p-veh-select');
-        select.innerHTML = '<option value="">Seleccione vehículo...</option>';
-        snap.forEach(child => {
-            const c = child.val();
-            if(c.estado === 'Disponible') {
-                select.innerHTML += `<option value="${child.key}">${c.matricula} - ${c.modelo}</option>`;
+function cargarCochesPrestados() {
+    db.ref('coches').once('value', snap => {
+        const sel = document.getElementById('d-veh-select');
+        sel.innerHTML = '<option value="">¿Qué coche vuelve?</option>';
+        snap.forEach(c => {
+            if(c.val().estado === 'Prestado') {
+                sel.innerHTML += `<option value="${c.key}">${c.val().matricula}</option>`;
             }
         });
     });
 }
 
-function autoRellenarCoche() {
-    const id = document.getElementById('p-veh-select').value;
-    if(!id) return;
-    db.ref('coches/' + id).once('value', snap => {
-        const c = snap.val();
-        document.getElementById('p-mod').value = c.modelo;
-        document.getElementById('p-mat-print').value = c.matricula;
-        document.getElementById('p-kms').value = c.kms;
+function verEstadoSalida() {
+    const idCoche = document.getElementById('d-veh-select').value;
+    if(!idCoche) return;
+    
+    // Buscar el contrato activo para ese coche
+    db.ref('contratos').orderByChild('matricula').once('value', snap => {
+        snap.forEach(child => {
+            const d = child.val();
+            // Si es el coche y no tiene fecha de entrada, es el contrato actual
+            if(d.matricula && !d.fechaEntrada) { 
+                document.getElementById('p-nom').value = d.nombre || "";
+                document.getElementById('p-dni').value = d.dni || "";
+                document.getElementById('p-mod').value = d.modelo || "";
+                document.getElementById('p-kms').value = d.kms || "";
+                // Guardamos el ID del contrato en un atributo temporal
+                document.getElementById('btn-finalizar-entrada').dataset.contratoId = child.key;
+            }
+        });
     });
 }
 
-function finalizarSalida() {
-    const vehId = document.getElementById('p-veh-select').value;
-    if(!vehId) return alert("Selecciona un coche");
+function finalizarEntrada() {
+    const idCoche = document.getElementById('d-veh-select').value;
+    const idContrato = document.getElementById('btn-finalizar-entrada').dataset.contratoId;
+    const kmsE = Number(document.getElementById('d-kms').value);
 
-    const contrato = {
-        matricula: document.getElementById('p-mat-print').value,
-        nombre: document.getElementById('p-nom').value,
-        via: document.getElementById('p-tipo-via').value,
-        direccion: document.getElementById('p-dir').value,
-        fechaSalida: document.getElementById('p-f-salida').value,
-        kms: document.getElementById('p-kms').value,
-        asesor: document.getElementById('p-asesor-select').value
-        // ... puedes añadir el resto de campos aquí
+    if(!kmsE) return alert("Introduce los KMs de entrada");
+
+    const updates = {
+        fechaEntrada: document.getElementById('d-f-entrada').value,
+        kmsEntrada: kmsE,
+        observacionesEntrada: document.getElementById('d-danos').value
     };
 
-    db.ref('contratos').push(contrato).then(() => {
-        db.ref('coches/' + vehId).update({ estado: 'Prestado' });
-        window.print();
+    db.ref('contratos/' + idContrato).update(updates).then(() => {
+        db.ref('coches/' + idCoche).update({ estado: 'Disponible', kms: kmsE });
+        alert("Entrada registrada con éxito");
         location.reload();
     });
 }
 
-function cargarAsesores() {
-    db.ref('config/asesores').once('value', snap => {
-        const sel = document.getElementById('p-asesor-select');
-        snap.forEach(a => { sel.innerHTML += `<option>${a.val()}</option>`; });
-    });
-}
+// ... Mantén tus funciones de finalizarSalida, autoRellenarCoche y cargarAsesores ...

@@ -2,92 +2,50 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Gestión Skoda Pro</title>
+  <title>Admin Skoda</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <style>
-    .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 5px solid #1e3a8a; cursor: pointer; transition: 0.2s; }
-    .dash-card:hover { transform: translateY(-3px); }
-    .status-pill { padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; color: white; }
-    .bg-disponible { background: #10b981; }
-    .bg-prestado { background: #f59e0b; }
-    .bg-baja { background: #ef4444; }
-    .filtro-activo { outline: 3px solid #1e3a8a; background: #f8fafc !important; }
-    #admin-content { display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 12px; }
-    th { text-align: left; padding: 10px; background: #f1f5f9; border-bottom: 2px solid #e2e8f0; }
-    td { padding: 10px; border-bottom: 1px solid #eee; }
-    .btn-edit { background: #3b82f6; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
-    .btn-delete { background: #ef4444; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
-    .seccion-historial { margin-top: 40px; border-top: 3px solid #1e3a8a; padding-top: 20px; }
+    .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border-top: 5px solid #1e3a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .filtro-activo { outline: 3px solid #1e3a8a; background: #f0f4ff !important; }
+    .status-pill { padding: 3px 8px; border-radius: 10px; color: white; font-size: 11px; font-weight: bold; }
+    .bg-disponible { background: #10b981; } .bg-prestado { background: #f59e0b; } .bg-baja { background: #ef4444; }
   </style>
 </head>
 <body style="background:#f1f5f9;">
-
-  <script>
-    const passB64 = "c2tvZGF0YWxsZXI=";
-    const promptPass = prompt("Contraseña de Administrador:");
-    if (btoa(promptPass) === passB64) {
-        document.addEventListener("DOMContentLoaded", () => document.getElementById('admin-content').style.display='block');
-    } else { window.location.href = "index.html"; }
-  </script>
-
-  <div id="admin-content" class="form-container" style="max-width: 1200px;">
-    <div class="header-nav no-print">
-      <a href="index.html" class="btn-admin">⬅️ VOLVER</a>
-      <h2 style="margin:0; color:#1e3a8a;">PANEL DE CONTROL PROFESIONAL</h2>
-      <button onclick="exportarExcel()" style="background:#10b981; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">📥 EXCEL</button>
+  <div id="admin-content" class="form-container" style="max-width: 1100px;">
+    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
+      <a href="index.html" style="text-decoration:none; color:#1e3a8a; font-weight:bold;">⬅️ VOLVER</a>
+      <h2 style="margin:0;">PANEL DE CONTROL</h2>
+      <button onclick="exportarExcel()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 EXCEL HISTORIAL</button>
     </div>
 
     <div class="dashboard">
-        <div class="dash-card filtro-activo" id="card-Todos" onclick="cambiarFiltro('Todos')"><label>Total</label><h2 id="count-total">0</h2></div>
-        <div class="dash-card" id="card-Disponible" onclick="cambiarFiltro('Disponible')"><label>Disponibles</label><h2 id="count-dispo">0</h2></div>
-        <div class="dash-card" id="card-Prestado" onclick="cambiarFiltro('Prestado')"><label>Prestados</label><h2 id="count-pres">0</h2></div>
-        <div class="dash-card" id="card-Baja" onclick="cambiarFiltro('Baja')"><label>Baja</label><h2 id="count-baja">0</h2></div>
+      <div class="dash-card filtro-activo" id="card-Todos" onclick="cambiarFiltro('Todos')"><label>Total</label><h2 id="count-total">0</h2></div>
+      <div class="dash-card" id="card-Disponible" onclick="cambiarFiltro('Disponible')"><label>Disponibles</label><h2 id="count-dispo">0</h2></div>
+      <div class="dash-card" id="card-Prestado" onclick="cambiarFiltro('Prestado')"><label>Prestados</label><h2 id="count-pres">0</h2></div>
+      <div class="dash-card" id="card-Baja" onclick="cambiarFiltro('Baja')"><label>Baja</label><h2 id="count-baja">0</h2></div>
     </div>
 
-    <div class="sub-section" style="background:white; margin-bottom:20px;">
-      <h4>➕ GESTIÓN DE VEHÍCULO</h4>
-      <input type="hidden" id="edit-id">
-      <div class="grid-4">
-        <div><label>Matrícula</label><input id="adm-mat"></div>
-        <div><label>Modelo</label><input id="adm-mod"></div>
-        <div><label>KMs</label><input id="adm-kms" type="number"></div>
-        <div><label>Estado</label>
-            <select id="adm-estado">
-                <option value="Disponible">Disponible</option>
-                <option value="Prestado">Prestado</option>
-                <option value="Baja">Baja</option>
-            </select>
-        </div>
-      </div>
-      <div style="margin-top:10px; display:flex; gap:10px;">
-        <button class="btn-main" onclick="guardarCoche()">💾 GUARDAR</button>
-        <button id="btn-cancel" onclick="limpiarForm()" style="display:none;">CANCELAR</button>
-      </div>
-    </div>
-
-    <div class="section" style="background:white;">
-      <h3 id="titulo-tabla">📋 LISTADO DE FLOTA</h3>
-      <table>
-        <thead><tr><th>Vehículo</th><th>Estado</th><th>KMs</th><th>Acciones</th></tr></thead>
+    <div class="section">
+      <h3 id="titulo-lista">📋 LISTADO DE FLOTA</h3>
+      <table style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
+            <th style="padding:10px; text-align:left;">Matrícula / Modelo</th>
+            <th style="padding:10px; text-align:center;">Estado</th>
+            <th style="padding:10px; text-align:right;">KMs</th>
+            <th style="padding:10px; text-align:center;">Acciones</th>
+          </tr>
+        </thead>
         <tbody id="lista-body"></tbody>
       </table>
-    </div>
-
-    <div class="seccion-historial">
-        <h3>📑 HISTORIAL DE PRÉSTAMOS</h3>
-        <table>
-            <thead><tr><th>Fecha</th><th>Coche</th><th>Cliente</th><th>Estado</th><th>Acciones</th></tr></thead>
-            <tbody id="historial-body"></tbody>
-        </table>
     </div>
   </div>
 
   <script>
-    // USAR TU CONFIGURACIÓN DE FIREBASE AQUÍ
     const firebaseConfig = { 
         apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
         authDomain: "cortesias-4235e.firebaseapp.com",
@@ -108,7 +66,10 @@
         let t=0, d=0, p=0, b=0;
         snap.forEach(child => {
             const c = child.val(); c.id = child.key; cacheCoches.push(c);
-            t++; if(c.estado==='Disponible') d++; else if(c.estado==='Prestado') p++; else b++;
+            t++;
+            if(c.estado==='Disponible') d++;
+            else if(c.estado==='Prestado') p++;
+            else b++;
         });
         document.getElementById('count-total').innerText = t;
         document.getElementById('count-dispo').innerText = d;
@@ -117,63 +78,42 @@
         pintarTabla();
     });
 
-    function cambiarFiltro(tipo) {
-        filtroActual = tipo;
+    function cambiarFiltro(f) {
+        filtroActual = f;
         document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('filtro-activo'));
-        document.getElementById('card-' + tipo).classList.add('filtro-activo');
+        document.getElementById('card-'+f).classList.add('filtro-activo');
         pintarTabla();
     }
 
     function pintarTabla() {
-        const body = document.getElementById('lista-body'); body.innerHTML = "";
+        const body = document.getElementById('lista-body');
+        body.innerHTML = "";
         cacheCoches.forEach(c => {
-            if (filtroActual === 'Todos' || c.estado === filtroActual) {
-                let pill = c.estado === 'Disponible' ? 'bg-disponible' : (c.estado === 'Prestado' ? 'bg-prestado' : 'bg-baja');
-                body.innerHTML += `<tr>
-                    <td><strong>${c.matricula}</strong></td>
-                    <td><span class="status-pill ${pill}">${c.estado}</span></td>
-                    <td>${c.kms}</td>
-                    <td><button class="btn-edit" onclick="editarCoche('${c.id}')">✏️</button></td>
+            if(filtroActual === 'Todos' || c.estado === filtroActual) {
+                const pill = c.estado==='Disponible'?'bg-disponible':(c.estado==='Prestado'?'bg-prestado':'bg-baja');
+                body.innerHTML += `<tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:10px;"><strong>${c.matricula}</strong><br><small>${c.modelo}</small></td>
+                    <td style="padding:10px; text-align:center;"><span class="status-pill ${pill}">${c.estado}</span></td>
+                    <td style="padding:10px; text-align:right;">${c.kms}</td>
+                    <td style="padding:10px; text-align:center;"><button onclick="alert('Editar ID: ${c.id}')">✏️</button></td>
                 </tr>`;
             }
         });
     }
 
-    function guardarCoche() {
-        const id = document.getElementById('edit-id').value;
-        const data = {
-            matricula: document.getElementById('adm-mat').value.toUpperCase(),
-            modelo: document.getElementById('adm-mod').value,
-            kms: Number(document.getElementById('adm-kms').value),
-            estado: document.getElementById('adm-estado').value
-        };
-        if(id) db.ref('coches/'+id).update(data); else db.ref('coches').push(data);
-        limpiarForm();
-    }
-
-    function editarCoche(id) {
-        const c = cacheCoches.find(x => x.id === id);
-        document.getElementById('edit-id').value = id;
-        document.getElementById('adm-mat').value = c.matricula;
-        document.getElementById('adm-mod').value = c.modelo;
-        document.getElementById('adm-kms').value = c.kms;
-        document.getElementById('adm-estado').value = c.estado;
-        document.getElementById('btn-cancel').style.display = "inline-block";
-    }
-
-    function limpiarForm() {
-        document.getElementById('edit-id').value = "";
-        document.querySelectorAll('.grid-4 input').forEach(i => i.value = "");
-        document.getElementById('btn-cancel').style.display = "none";
-    }
-
-    db.ref('contratos').on('value', snap => {
-        const h = document.getElementById('historial-body'); h.innerHTML = "";
-        snap.forEach(c => {
-            const d = c.val();
-            h.innerHTML += `<tr><td>${d.fechaSalida}</td><td>${d.matricula}</td><td>${d.nombre}</td><td>${d.fechaEntrada ? 'Finalizado' : 'En uso'}</td><td>-</td></tr>`;
+    async function exportarExcel() {
+        const snap = await db.ref('contratos').once('value');
+        let csv = "Fecha;Matricula;Nombre;Direccion;KMs Salida;KMs Entrada;Asesor\n";
+        snap.forEach(child => {
+            const d = child.val();
+            csv += `${d.fechaSalida || ''};${d.matricula || ''};${d.nombre || ''};${d.direccion || ''};${d.kms || ''};${d.kmsEntrada || ''};${d.asesor || ''}\n`;
         });
-    });
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "Historial_Flota.csv";
+        link.click();
+    }
   </script>
 </body>
 </html>

@@ -1,53 +1,21 @@
-/* Estilos Generales */
-* { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+* { box-sizing: border-box; font-family: sans-serif; }
 body { background: #f1f5f9; margin: 0; padding: 0; }
-
-.form-container { 
-    max-width: 1000px; 
-    margin: 20px auto; 
-    background: white; 
-    padding: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 0 10px rgba(0,0,0,0.1); 
-}
-
+.form-container { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
 .section { border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
-h3 { margin-top: 0; color: #1e3a8a; border-bottom: 2px solid #1e3a8a; font-size: 16px; }
-
-/* Grillas */
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+h3 { margin-top: 0; color: #1e3a8a; border-bottom: 2px solid #1e3a8a; font-size: 16px; padding-bottom: 5px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
 label { display: block; font-size: 11px; font-weight: bold; color: #475569; margin-bottom: 3px; }
-input, select, textarea { 
-    width: 100%; 
-    padding: 6px; 
-    border: 1px solid #cbd5e1; 
-    border-radius: 4px; 
-    font-size: 13px; 
-}
+input, select, textarea { width: 100%; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 13px; }
+.space-firma { margin-top: 20px; border: 1px dashed #ccc; height: 80px; text-align: center; }
+.space-firma p { font-size: 10px; color: #999; margin-top: 60px; }
+.btn-tab { padding: 10px 20px; border: none; cursor: pointer; background: #e2e8f0; font-weight: bold; }
+.btn-tab.active { background: #1e3a8a; color: white; }
 
-/* Firmas */
-.space-firma { margin-top: 20px; border: 1px dashed #cbd5e1; height: 80px; text-align: center; }
-.space-firma p { font-size: 10px; color: #94a3b8; margin-top: 60px; }
-
-/* Navegación */
-.no-print { display: flex; justify-content: space-between; margin-bottom: 20px; }
-.header-img img { max-width: 200px; margin-bottom: 15px; }
-
-/* IMPRESIÓN - AJUSTE PARA MARGEN DERECHO */
 @media print {
-    body { background: white; }
-    .no-print, .btn-admin { display: none !important; }
-    .form-container { 
-        width: 100% !important; 
-        max-width: 100% !important; 
-        margin: 0 !important; 
-        padding: 0.5cm !important; /* Margen interno reducido para evitar cortes */
-        box-shadow: none;
-    }
-    input, select, textarea { border: none !important; border-bottom: 1px solid #000 !important; border-radius: 0; }
-    .section { page-break-inside: avoid; }
+    .no-print { display: none !important; }
+    .form-container { width: 100%; max-width: 100%; margin: 0; padding: 0.5cm; }
+    input, select, textarea { border: none !important; border-bottom: 1px solid #000 !important; }
     @page { margin: 1cm; }
 }

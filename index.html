@@ -1,80 +1,117 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Gestión Skoda</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <title>Sistema de Gestión Skoda - Oficial</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 </head>
 <body>
-    <div class="form-container">
-        <div class="no-print" style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <div class="tabs">
-                <button onclick="cambiarPestana('salida')" id="btn-sal" class="btn-tab active">SALIDA</button>
-                <button onclick="cambiarPestana('entrada')" id="btn-ent" class="btn-tab">ENTRADA</button>
-            </div>
-            <a href="admin.html" style="background:#1e3a8a; color:white; padding:10px; border-radius:5px; text-decoration:none;">⚙️ PANEL ADMIN</a>
-        </div>
-
-        <div class="header-img"><img src="https://i.imgur.com/NQH1nT0.png" style="max-width:200px;"></div>
-
-        <div id="contrato">
-            <div class="section">
-                <h3>DATOS DEL VEHÍCULO</h3>
-                <div class="grid-4">
-                    <div>
-                        <label>Matrícula</label>
-                        <select id="sel-vehiculos" onchange="seleccionarCoche()"></select>
-                    </div>
-                    <div><label>Modelo</label><input id="p-mod" readonly></div>
-                    <div><label>Nº OR</label><input id="p-or"></div>
-                    <div><label>Asesor</label><select id="p-asesor"></select></div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h3>DATOS DEL CLIENTE</h3>
-                <div class="grid-3">
-                    <div><label>Nombre</label><input id="p-nom"></div>
-                    <div><label>DNI</label><input id="p-dni"></div>
-                    <div><label>Teléfono</label><input id="p-tel"></div>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <div style="width:80px;"><label>Vía</label><select id="p-via"><option>Cl.</option><option>Av.</option><option>Pz.</option></select></div>
-                    <div style="flex-grow:1;"><label>Dirección</label><input id="p-dir"></div>
-                </div>
-                <div class="grid-3" style="margin-top:10px;">
-                    <div><label>Carnet Exp.</label><input id="p-carnet-exp" type="date"></div>
-                    <div><label>Carnet Cad.</label><input id="p-carnet-cad" type="date"></div>
-                    <div><label>Matrícula Cliente</label><input id="p-mat-c"></div>
-                </div>
-            </div>
-
-            <div class="grid-2-col">
-                <div class="section">
-                    <h4>SALIDA</h4>
-                    <label>Fecha</label><input id="p-f-salida" readonly>
-                    <label>KMs Salida</label><input id="p-kms" type="number">
-                    <label>Combustible</label><input id="p-comb">
-                    <label>Observaciones</label><textarea id="p-obs"></textarea>
-                    <div class="space-firma"><p>FIRMA CLIENTE</p></div>
-                </div>
-                <div class="section">
-                    <h4>ENTRADA</h4>
-                    <label>Fecha</label><input id="d-f-entrada" readonly>
-                    <label>KMs Entrada</label><input id="d-kms" type="number">
-                    <label>Combustible</label><input id="d-comb-ent">
-                    <label>Daños</label><textarea id="d-danos"></textarea>
-                    <div class="space-firma"><p>FIRMA CLIENTE</p></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="no-print">
-            <button id="btn-accion" onclick="procesar()" style="width:100%; padding:15px; background:#10b981; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">GUARDAR E IMPRIMIR SALIDA</button>
-        </div>
+  <div class="form-container">
+    <div class="no-print header-nav" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div class="tabs">
+        <button onclick="cambiarPestana('salida')" id="btn-sal" class="btn-tab active">SALIDA</button>
+        <button onclick="cambiarPestana('entrada')" id="btn-ent" class="btn-tab">ENTRADA</button>
+      </div>
+      <a href="admin.html" class="btn-admin" style="background:#1e3a8a; color:white; padding:8px 15px; border-radius:5px; text-decoration:none; font-weight:bold;">⚙️ PANEL CONTROL</a>
     </div>
-    <script src="script.js"></script>
+
+    <div class="header-img">
+      <img src="https://i.imgur.com/NQH1nT0.png" style="max-width:200px; margin-bottom:10px;">
+    </div>
+
+    <div id="contrato-imprimible">
+      
+      <div class="section">
+        <h3>DATOS DEL VEHÍCULO DE CORTESÍA</h3>
+        <div class="grid-4">
+          <div>
+            <label>Matrícula</label>
+            <select id="sel-vehiculos" onchange="seleccionarCoche()" class="no-print"></select>
+            <input id="p-mat-print" class="only-print" readonly placeholder="Matrícula">
+          </div>
+          <div><label>Modelo</label><input id="p-mod" readonly style="background:#f8fafc;"></div>
+          <div><label>Nº OR / Expediente</label><input id="p-or" placeholder="0000"></div>
+          <div><label>Asesor de Servicio</label><select id="p-asesor"></select></div>
+        </div>
+        
+        <div class="grid-3" style="background:#f1f5f9; padding:8px; border-radius:5px; margin-top:10px; border: 1px solid #cbd5e1;">
+            <div><label>Compañía de Seguro</label><input id="p-seg-cia" readonly style="border:none; background:transparent; font-weight:bold;"></div>
+            <div><label>Número de Póliza</label><input id="p-seg-pol" readonly style="border:none; background:transparent; font-weight:bold;"></div>
+            <div><label>Tel. Asistencia 24h</label><input id="p-seg-tel" readonly style="border:none; background:transparent; font-weight:bold;"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>DATOS DEL CLIENTE Y CONDUCTOR</h3>
+        <div class="grid-3">
+          <div><label>Nombre y Apellidos</label><input id="p-nom"></div>
+          <div><label>DNI / NIE</label><input id="p-dni"></div>
+          <div><label>Teléfono Móvil</label><input id="p-tel" type="tel"></div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <div style="width: 80px;"><label>Vía</label>
+            <select id="p-via">
+              <option value="Cl.">Cl.</option><option value="Av.">Av.</option>
+              <option value="Pz.">Pz.</option><option value="Crta.">Crta.</option>
+            </select>
+          </div>
+          <div style="flex-grow: 1;"><label>Dirección (Calle, número, piso, ciudad)</label><input id="p-dir"></div>
+          <div style="width: 100px;"><label>C.P.</label><input id="p-cp"></div>
+        </div>
+
+        <div class="grid-3" style="margin-top:10px;">
+          <div><label>Carnet: Fecha Expedición</label><input id="p-carnet-exp" type="date"></div>
+          <div><label>Carnet: Fecha Caducidad</label><input id="p-carnet-cad" type="date"></div>
+          <div><label>Matrícula Veh. Cliente</label><input id="p-mat-c" placeholder="Coche Taller"></div>
+        </div>
+
+        <div class="grid-2-col" style="margin-top:10px; grid-template-columns: 1fr 1fr;">
+          <div><label>Fecha Devolución Prevista</label><input id="p-f-devolucion" type="date"></div>
+          <div><label>Tarifa Aplicada</label>
+            <select id="p-tarifa">
+              <option value="GRATUITA">GRATUITA (Franquicia 300€)</option>
+              <option value="REDUCIDA">REDUCIDA (15€/día)</option>
+              <option value="ESTANDAR">ESTANDAR (30€/día)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2-col">
+        <div class="section">
+          <h4 style="margin:0 0 10px 0; color:#10b981;">ENTREGA (SALIDA)</h4>
+          <div style="margin-bottom:5px;"><label>Fecha/Hora Salida</label><input id="p-f-salida" readonly></div>
+          <div style="margin-bottom:5px;"><label>Kilometraje Salida</label><input id="p-kms" type="number"></div>
+          <div style="margin-bottom:5px;"><label>Nivel Combustible</label><input id="p-comb" placeholder="Ej: 4/4 o 100%"></div>
+          <label>Observaciones Salida</label><textarea id="p-obs" rows="2"></textarea>
+          <div class="space-firma"><p>FIRMA CLIENTE (SALIDA)</p></div>
+        </div>
+
+        <div class="section">
+          <h4 style="margin:0 0 10px 0; color:#312e81;">RECOGIDA (ENTRADA)</h4>
+          <div style="margin-bottom:5px;"><label>Fecha/Hora Entrada</label><input id="d-f-entrada" readonly></div>
+          <div style="margin-bottom:5px;"><label>Kilometraje Entrada</label><input id="d-kms" type="number"></div>
+          <div style="margin-bottom:5px;"><label>Nivel Combustible</label><input id="d-comb-ent"></div>
+          <label>Daños o Notas Entrada</label><textarea id="d-danos" rows="2"></textarea>
+          <div class="space-firma"><p>FIRMA CLIENTE (ENTRADA)</p></div>
+        </div>
+      </div>
+
+      <p style="font-size: 8px; color: #666; line-height: 1.1; margin-top: 10px;">
+        El cliente reconoce recibir el vehículo en perfecto estado de funcionamiento, con la carrocería y accesorios según lo indicado. Se compromete a devolverlo en las mismas condiciones. En caso de siniestro, el cliente acepta la responsabilidad según la tarifa elegida. Política de Protección de Datos: Sus datos se tratarán exclusivamente para la gestión de este contrato de cortesía.
+      </p>
+    </div>
+
+    <div class="no-print" style="margin-top:20px;">
+      <button id="btn-accion" onclick="procesar()" style="width:100%; padding:18px; background:#10b981; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:16px;">
+        GUARDAR E IMPRIMIR CONTRATO
+      </button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

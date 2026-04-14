@@ -2,42 +2,70 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Skoda</title>
+  <title>Admin Skoda - Gestión de Flota</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
   <style>
     .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border-top: 5px solid #1e3a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border-top: 5px solid #1e3a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s; }
+    .dash-card:hover { transform: translateY(-3px); }
     .filtro-activo { outline: 3px solid #1e3a8a; background: #f0f4ff !important; }
     .status-pill { padding: 3px 8px; border-radius: 10px; color: white; font-size: 11px; font-weight: bold; }
     .bg-disponible { background: #10b981; } .bg-prestado { background: #f59e0b; } .bg-baja { background: #ef4444; }
+    .form-gestion { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+    th { background: #f8fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 12px; border-bottom: 1px solid #eee; }
+    .btn-edit { background: #3b82f6; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body style="background:#f1f5f9;">
   <div id="admin-content" class="form-container" style="max-width: 1100px;">
+    
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
-      <a href="index.html" style="text-decoration:none; color:#1e3a8a; font-weight:bold;">⬅️ VOLVER</a>
-      <h2 style="margin:0;">PANEL DE CONTROL</h2>
-      <button onclick="exportarExcel()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 EXCEL HISTORIAL</button>
+      <a href="index.html" style="text-decoration:none; color:#1e3a8a; font-weight:bold;">⬅️ VOLVER AL PANEL</a>
+      <h2 style="margin:0; color: #1e3a8a;">GESTIÓN DE FLOTA Y ARCHIVO</h2>
+      <button onclick="exportarExcel()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 EXCEL COMPLETO</button>
     </div>
 
     <div class="dashboard">
-      <div class="dash-card filtro-activo" id="card-Todos" onclick="cambiarFiltro('Todos')"><label>Total</label><h2 id="count-total">0</h2></div>
+      <div class="dash-card filtro-activo" id="card-Todos" onclick="cambiarFiltro('Todos')"><label>Total Flota</label><h2 id="count-total">0</h2></div>
       <div class="dash-card" id="card-Disponible" onclick="cambiarFiltro('Disponible')"><label>Disponibles</label><h2 id="count-dispo">0</h2></div>
-      <div class="dash-card" id="card-Prestado" onclick="cambiarFiltro('Prestado')"><label>Prestados</label><h2 id="count-pres">0</h2></div>
-      <div class="dash-card" id="card-Baja" onclick="cambiarFiltro('Baja')"><label>Baja</label><h2 id="count-baja">0</h2></div>
+      <div class="dash-card" id="card-Prestado" onclick="cambiarFiltro('Prestado')"><label>En Préstamo</label><h2 id="count-pres">0</h2></div>
+      <div class="dash-card" id="card-Baja" onclick="cambiarFiltro('Baja')"><label>En Taller / Baja</label><h2 id="count-baja">0</h2></div>
     </div>
 
-    <div class="section">
-      <h3 id="titulo-lista">📋 LISTADO DE FLOTA</h3>
-      <table style="width:100%; border-collapse: collapse;">
+    <div class="form-gestion">
+      <h4 style="margin-top:0;">➕ AÑADIR / EDITAR VEHÍCULO</h4>
+      <input type="hidden" id="edit-id">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div><label>Matrícula</label><input id="adm-mat" placeholder="1234ABC"></div>
+        <div><label>Modelo</label><input id="adm-mod" placeholder="Skoda Fabia"></div>
+        <div><label>KMs Actuales</label><input id="adm-kms" type="number"></div>
+        <div>
+          <label>Estado</label>
+          <select id="adm-estado">
+            <option value="Disponible">Disponible</option>
+            <option value="Prestado">Prestado</option>
+            <option value="Baja">Baja / Taller</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:15px;">
+        <button onclick="guardarCoche()" style="background:#1e3a8a; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">💾 GUARDAR VEHÍCULO</button>
+        <button id="btn-cancelar" onclick="limpiarForm()" style="display:none; background:#94a3b8; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">CANCELAR</button>
+      </div>
+    </div>
+
+    <div class="section" style="background:white; padding:0;">
+      <table id="tabla-coches">
         <thead>
-          <tr style="background:#f8fafc; border-bottom:2px solid #e2e8f0;">
-            <th style="padding:10px; text-align:left;">Matrícula / Modelo</th>
-            <th style="padding:10px; text-align:center;">Estado</th>
-            <th style="padding:10px; text-align:right;">KMs</th>
-            <th style="padding:10px; text-align:center;">Acciones</th>
+          <tr>
+            <th>Vehículo (Matrícula / Modelo)</th>
+            <th style="text-align:center;">Estado Actual</th>
+            <th style="text-align:right;">Kilometraje</th>
+            <th style="text-align:center;">Acciones</th>
           </tr>
         </thead>
         <tbody id="lista-body"></tbody>
@@ -61,6 +89,7 @@
     let cacheCoches = [];
     let filtroActual = 'Todos';
 
+    // Escuchar cambios en la flota
     db.ref('coches').on('value', snap => {
         cacheCoches = [];
         let t=0, d=0, p=0, b=0;
@@ -78,6 +107,22 @@
         pintarTabla();
     });
 
+    function pintarTabla() {
+        const body = document.getElementById('lista-body');
+        body.innerHTML = "";
+        cacheCoches.forEach(c => {
+            if(filtroActual === 'Todos' || c.estado === filtroActual) {
+                const pill = c.estado==='Disponible'?'bg-disponible':(c.estado==='Prestado'?'bg-prestado':'bg-baja');
+                body.innerHTML += `<tr>
+                    <td><strong>${c.matricula}</strong><br><small style="color:#64748b">${c.modelo}</small></td>
+                    <td style="text-align:center;"><span class="status-pill ${pill}">${c.estado}</span></td>
+                    <td style="text-align:right;">${Number(c.kms).toLocaleString()} km</td>
+                    <td style="text-align:center;"><button class="btn-edit" onclick="editarCoche('${c.id}')">✏️ Editar</button></td>
+                </tr>`;
+            }
+        });
+    }
+
     function cambiarFiltro(f) {
         filtroActual = f;
         document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('filtro-activo'));
@@ -85,33 +130,64 @@
         pintarTabla();
     }
 
-    function pintarTabla() {
-        const body = document.getElementById('lista-body');
-        body.innerHTML = "";
-        cacheCoches.forEach(c => {
-            if(filtroActual === 'Todos' || c.estado === filtroActual) {
-                const pill = c.estado==='Disponible'?'bg-disponible':(c.estado==='Prestado'?'bg-prestado':'bg-baja');
-                body.innerHTML += `<tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:10px;"><strong>${c.matricula}</strong><br><small>${c.modelo}</small></td>
-                    <td style="padding:10px; text-align:center;"><span class="status-pill ${pill}">${c.estado}</span></td>
-                    <td style="padding:10px; text-align:right;">${c.kms}</td>
-                    <td style="padding:10px; text-align:center;"><button onclick="alert('Editar ID: ${c.id}')">✏️</button></td>
-                </tr>`;
-            }
-        });
+    // Funciones de Gestión
+    function guardarCoche() {
+        const id = document.getElementById('edit-id').value;
+        const mat = document.getElementById('adm-mat').value.toUpperCase();
+        const mod = document.getElementById('adm-mod').value;
+        const kms = document.getElementById('adm-kms').value;
+        const est = document.getElementById('adm-estado').value;
+
+        if(!mat || !mod || !kms) return alert("Rellena todos los campos");
+
+        const data = { matricula: mat, modelo: mod, kms: Number(kms), estado: est };
+
+        if(id) {
+            db.ref('coches/' + id).update(data);
+        } else {
+            db.ref('coches').push(data);
+        }
+        limpiarForm();
     }
 
+    function editarCoche(id) {
+        const c = cacheCoches.find(x => x.id === id);
+        document.getElementById('edit-id').value = id;
+        document.getElementById('adm-mat').value = c.matricula;
+        document.getElementById('adm-mod').value = c.modelo;
+        document.getElementById('adm-kms').value = c.kms;
+        document.getElementById('adm-estado').value = c.estado;
+        document.getElementById('btn-cancelar').style.display = "inline-block";
+    }
+
+    function limpiarForm() {
+        document.getElementById('edit-id').value = "";
+        document.getElementById('adm-mat').value = "";
+        document.getElementById('adm-mod').value = "";
+        document.getElementById('adm-kms').value = "";
+        document.getElementById('btn-cancelar').style.display = "none";
+    }
+
+    // EXCEL DINÁMICO CON TODOS LOS DATOS
     async function exportarExcel() {
         const snap = await db.ref('contratos').once('value');
-        let csv = "Fecha;Matricula;Nombre;Direccion;KMs Salida;KMs Entrada;Asesor\n";
+        // Cabeceras extendidas
+        let csv = "Fecha Salida;Matricula Coche;Modelo;Nombre Cliente;DNI;Telefono;Direccion;Matricula Cliente;Asesor;KMs Salida;Fecha Entrada;KMs Entrada;Estado\n";
+        
         snap.forEach(child => {
             const d = child.val();
-            csv += `${d.fechaSalida || ''};${d.matricula || ''};${d.nombre || ''};${d.direccion || ''};${d.kms || ''};${d.kmsEntrada || ''};${d.asesor || ''}\n`;
+            const tel = d.tel || d.telefono || "";
+            const matCli = d.matCliente || d.matriculaCliente || "";
+            const fEntrada = d.fechaEntrada || "PENDIENTE";
+            const dir = (d.direccion || "").replace(/;/g, " "); // Limpiar puntos y coma de la dirección
+
+            csv += `${d.fechaSalida || ''};${d.matricula || ''};${d.modelo || ''};${d.nombre || ''};${d.dni || ''};${tel};${dir};${matCli};${d.asesor || ''};${d.kms || ''};${fEntrada};${d.kmsEntrada || ''};${d.fechaEntrada ? 'CERRADO' : 'ACTIVO'}\n`;
         });
+
         const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "Historial_Flota.csv";
+        link.download = `Historial_Cortesias_${new Date().toLocaleDateString()}.csv`;
         link.click();
     }
   </script>

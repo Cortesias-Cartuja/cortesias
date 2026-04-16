@@ -1,117 +1,102 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Skoda - Gestión Total</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-  <style>
-    .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-    .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border-top: 5px solid #1e3a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .filtro-activo { outline: 3px solid #1e3a8a; background: #f0f4ff !important; }
-    
-    /* Colores Dashboard */
-    #card-Stock { border-top-color: #1e3a8a; } /* Azul */
-    #card-Disponible { border-top-color: #10b981; } /* Verde */
-    #card-Prestado { border-top-color: #f59e0b; } /* Naranja */
-    #card-Baja { border-top-color: #ef4444; } /* Rojo */
+    <meta charset="UTF-8">
+    <title>Admin Skoda - Gestión Total</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <style>
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .dash-card { background: white; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border-top: 5px solid #1e3a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .filtro-activo { outline: 3px solid #1e3a8a; background: #f0f4ff !important; }
+        
+        #card-Stock { border-top-color: #1e3a8a; }
+        #card-Disponible { border-top-color: #10b981; }
+        #card-Prestado { border-top-color: #f59e0b; }
+        #card-Baja { border-top-color: #ef4444; }
 
-    .status-pill { padding: 3px 8px; border-radius: 10px; color: white; font-size: 11px; font-weight: bold; }
-    .bg-disponible { background: #10b981; } .bg-prestado { background: #f59e0b; } .bg-baja { background: #ef4444; }
-    
-    .seccion-admin { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { background: #f8fafc; padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0; }
-    td { padding: 10px; border-bottom: 1px solid #eee; }
-    
-    .modal-editor { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 100; width: 80%; max-width: 800px; display: none; }
-    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; z-index: 90; }
-  </style>
+        .status-pill { padding: 3px 8px; border-radius: 10px; color: white; font-size: 11px; font-weight: bold; }
+        .bg-disponible { background: #10b981; } .bg-prestado { background: #f59e0b; } .bg-baja { background: #ef4444; }
+        
+        .seccion-admin { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        th { background: #f8fafc; padding: 10px; text-align: left; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        /* Modal corregido */
+        .modal-editor { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5); z-index: 100; width: 90%; max-width: 700px; display: none; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 90; }
+        .grid-modal { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { font-weight: bold; font-size: 12px; display: block; margin-bottom: 5px; color: #1e3a8a; }
+        input { margin-bottom: 10px; }
+    </style>
 </head>
 <body style="background:#f1f5f9;">
 
-  <div class="form-container" style="max-width: 1200px;">
+<div class="form-container" style="max-width: 1200px;">
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom:20px;">
-      <a href="index.html" style="text-decoration:none; color:#1e3a8a; font-weight:bold;">⬅️ VOLVER</a>
-      <h2 style="margin:0;">PANEL DE CONTROL PROFESIONAL</h2>
-      <button onclick="exportarExcel()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">📥 DESCARGAR EXCEL</button>
+        <a href="index.html" style="text-decoration:none; color:#1e3a8a; font-weight:bold;">⬅️ VOLVER</a>
+        <h2 style="margin:0;">PANEL DE CONTROL PROFESIONAL</h2>
+        <button onclick="exportarExcel()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 DESCARGAR EXCEL</button>
     </div>
 
     <div class="dashboard">
-      <div class="dash-card filtro-activo" id="card-Stock" onclick="cambiarFiltro('Stock')">
-        <label>STOCK TOTAL (Activos)</label>
-        <h2 id="count-stock">0</h2>
-      </div>
-      <div class="dash-card" id="card-Disponible" onclick="cambiarFiltro('Disponible')">
-        <label>DISPONIBLES</label>
-        <h2 id="count-dispo">0</h2>
-      </div>
-      <div class="dash-card" id="card-Prestado" onclick="cambiarFiltro('Prestado')">
-        <label>PRESTADOS</label>
-        <h2 id="count-pres">0</h2>
-      </div>
-      <div class="dash-card" id="card-Baja" onclick="cambiarFiltro('Baja')">
-        <label>DE BAJA / TALLER</label>
-        <h2 id="count-baja">0</h2>
-      </div>
+        <div class="dash-card filtro-activo" id="card-Stock" onclick="cambiarFiltro('Stock')"><label>STOCK TOTAL</label><h2 id="count-stock">0</h2></div>
+        <div class="dash-card" id="card-Disponible" onclick="cambiarFiltro('Disponible')"><label>DISPONIBLES</label><h2 id="count-dispo">0</h2></div>
+        <div class="dash-card" id="card-Prestado" onclick="cambiarFiltro('Prestado')"><label>PRESTADOS</label><h2 id="count-pres">0</h2></div>
+        <div class="dash-card" id="card-Baja" onclick="cambiarFiltro('Baja')"><label>DE BAJA</label><h2 id="count-baja">0</h2></div>
     </div>
 
     <div class="seccion-admin">
-      <h3>🚗 ESTADO DE LA FLOTA</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Matrícula</th>
-            <th>Modelo</th>
-            <th>Estado</th>
-            <th>KMs Actuales</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="lista-body"></tbody>
-      </table>
+        <h3 style="margin-top:0; color:#1e3a8a;">🚗 GESTIÓN DE FLOTA (Coches)</h3>
+        <table id="tabla-flota">
+            <thead>
+                <tr>
+                    <th>Matrícula</th>
+                    <th>Modelo</th>
+                    <th>Estado</th>
+                    <th>KMs</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="lista-body"></tbody>
+        </table>
     </div>
 
     <div class="seccion-admin">
-      <h3>📑 HISTORIAL Y EDICIÓN DE CONTRATOS</h3>
-      <table id="tabla-contratos">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Cliente</th>
-            <th>Coche</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody id="contratos-body"></tbody>
-      </table>
+        <h3 style="margin-top:0; color:#1e3a8a;">📑 HISTORIAL Y EDICIÓN DE CONTRATOS</h3>
+        <table id="tabla-contratos">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Coche</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="contratos-body"></tbody>
+        </table>
     </div>
-  </div>
+</div>
 
-  <div class="overlay" id="overlay" onclick="cerrarEditor()"></div>
-  <div class="modal-editor" id="modal-editor">
-    <h3 id="edit-titulo">Editar Contrato</h3>
-    <input type="hidden" id="edit-con-id">
-    <div class="grid-3">
-      <div><label>Nombre Cliente</label><input id="edit-nom"></div>
-      <div><label>DNI</label><input id="edit-dni"></div>
-      <div><label>Teléfono</label><input id="edit-tel"></div>
-    </div>
-    <div class="grid-3" style="margin-top:10px;">
-      <div><label>Matrícula Cliente</label><input id="edit-matcli"></div>
-      <div><label>KMs Salida</label><input id="edit-kms-s" type="number"></div>
-      <div><label>KMs Entrada</label><input id="edit-kms-e" type="number"></div>
-    </div>
+<div class="overlay" id="overlay" onclick="cerrarEditor()"></div>
+<div class="modal-editor" id="modal-editor">
+    <h3 id="edit-titulo" style="border-bottom: 2px solid #1e3a8a; padding-bottom: 10px;">Editar</h3>
+    <input type="hidden" id="edit-id">
+    <input type="hidden" id="edit-tipo"> <div id="campos-editor" class="grid-modal">
+        </div>
+
     <div style="margin-top:20px; display:flex; gap:10px;">
-      <button onclick="guardarEdicionContrato()" style="background:#10b981; color:white; padding:10px; border:none; border-radius:5px; flex-grow:1; cursor:pointer;">💾 GUARDAR CAMBIOS</button>
-      <button onclick="cerrarEditor()" style="background:#ef4444; color:white; padding:10px; border:none; border-radius:5px; cursor:pointer;">CANCELAR</button>
+        <button onclick="guardarCambios()" style="background:#10b981; color:white; padding:12px; border:none; border-radius:5px; flex-grow:1; cursor:pointer; font-weight:bold;">💾 GUARDAR CAMBIOS</button>
+        <button onclick="cerrarEditor()" style="background:#ef4444; color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">CANCELAR</button>
     </div>
-  </div>
+</div>
 
-  <script>
+<script>
+    // Tu Configuración de Firebase
     const firebaseConfig = { 
         apiKey: "AIzaSyAeejUNvRX3KvmHMgKUff5vTS44-_UGCSg",
         authDomain: "cortesias-4235e.firebaseapp.com",
@@ -127,16 +112,15 @@
     let cacheCoches = [];
     let filtroActual = 'Stock';
 
-    // --- LÓGICA DE FLOTA ---
+    // CARGAR FLOTA
     db.ref('coches').on('value', snap => {
         cacheCoches = [];
         let stock=0, dispo=0, pres=0, baja=0;
         snap.forEach(child => {
             const c = child.val(); c.id = child.key; cacheCoches.push(c);
-            if(c.estado === 'Baja') {
-                baja++;
-            } else {
-                stock++; // Solo cuenta Disponible + Prestado
+            if(c.estado === 'Baja') baja++;
+            else {
+                stock++;
                 if(c.estado === 'Disponible') dispo++;
                 else if(c.estado === 'Prestado') pres++;
             }
@@ -152,10 +136,7 @@
         const body = document.getElementById('lista-body');
         body.innerHTML = "";
         cacheCoches.forEach(c => {
-            let mostrar = false;
-            if(filtroActual === 'Stock' && c.estado !== 'Baja') mostrar = true;
-            else if(filtroActual === c.estado) mostrar = true;
-
+            let mostrar = (filtroActual === 'Stock' && c.estado !== 'Baja') || (filtroActual === c.estado);
             if(mostrar) {
                 const pill = c.estado==='Disponible'?'bg-disponible':(c.estado==='Prestado'?'bg-prestado':'bg-baja');
                 body.innerHTML += `<tr>
@@ -163,92 +144,112 @@
                     <td>${c.modelo}</td>
                     <td><span class="status-pill ${pill}">${c.estado}</span></td>
                     <td>${c.kms} km</td>
-                    <td><button onclick="cambiarEstadoCoche('${c.id}')">⚙️ Estado</button></td>
+                    <td><button onclick="abrirEditorCoche('${c.id}')">✏️ Editar Coche</button></td>
                 </tr>`;
             }
         });
     }
 
-    function cambiarFiltro(f) {
-        filtroActual = f;
-        document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('filtro-activo'));
-        document.getElementById('card-'+f).classList.add('filtro-activo');
-        pintarFlota();
-    }
-
-    function cambiarEstadoCoche(id) {
-        const nuevo = prompt("Nuevo estado (Disponible, Prestado, Baja):");
-        if(nuevo) db.ref('coches/'+id).update({ estado: nuevo });
-    }
-
-    // --- LÓGICA DE CONTRATOS (EDICIÓN TOTAL) ---
+    // CARGAR CONTRATOS
     db.ref('contratos').on('value', snap => {
         const body = document.getElementById('contratos-body');
         body.innerHTML = "";
         snap.forEach(child => {
             const con = child.val(); con.id = child.key;
             body.innerHTML += `<tr>
-                <td>${con.fechaSalida}</td>
-                <td>${con.nombre}</td>
-                <td>${con.matricula}</td>
+                <td>${con.fechaSalida || '-'}</td>
+                <td>${con.nombre || 'N/A'}</td>
+                <td>${con.matricula || '-'}</td>
                 <td>${con.tel || '-'}</td>
                 <td>${con.fechaEntrada ? '✅ Cerrado' : '⏳ Activo'}</td>
-                <td><button onclick="abrirEditor('${con.id}')">✏️ EDITAR TODO</button></td>
+                <td><button onclick="abrirEditorContrato('${con.id}')">✏️ EDITAR DATOS</button></td>
             </tr>`;
         });
     });
 
-    function abrirEditor(id) {
+    // FUNCIONES EDITOR
+    function abrirEditorCoche(id) {
+        const c = cacheCoches.find(x => x.id === id);
+        document.getElementById('edit-titulo').innerText = "Editar Vehículo: " + c.matricula;
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-tipo').value = 'coche';
+        
+        document.getElementById('campos-editor').innerHTML = `
+            <div><label>Matrícula</label><input id="inp-1" value="${c.matricula}"></div>
+            <div><label>Modelo</label><input id="inp-2" value="${c.modelo}"></div>
+            <div><label>KMs Actuales</label><input id="inp-3" type="number" value="${c.kms}"></div>
+            <div><label>Estado</label>
+                <select id="inp-4" style="width:100%; padding:8px;">
+                    <option value="Disponible" ${c.estado==='Disponible'?'selected':''}>Disponible</option>
+                    <option value="Prestado" ${c.estado==='Prestado'?'selected':''}>Prestado</option>
+                    <option value="Baja" ${c.estado==='Baja'?'selected':''}>Baja</option>
+                </select>
+            </div>`;
+        mostrarModal();
+    }
+
+    function abrirEditorContrato(id) {
         db.ref('contratos/'+id).once('value', snap => {
-            const c = snap.val();
-            document.getElementById('edit-con-id').value = id;
-            document.getElementById('edit-nom').value = c.nombre || "";
-            document.getElementById('edit-dni').value = c.dni || "";
-            document.getElementById('edit-tel').value = c.tel || "";
-            document.getElementById('edit-matcli').value = c.matCliente || "";
-            document.getElementById('edit-kms-s').value = c.kms || 0;
-            document.getElementById('edit-kms-e').value = c.kmsEntrada || 0;
+            const con = snap.val();
+            document.getElementById('edit-titulo').innerText = "Editar Contrato: " + con.nombre;
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-tipo').value = 'contrato';
             
-            document.getElementById('modal-editor').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('campos-editor').innerHTML = `
+                <div><label>Nombre Cliente</label><input id="inp-1" value="${con.nombre || ''}"></div>
+                <div><label>Teléfono</label><input id="inp-2" value="${con.tel || ''}"></div>
+                <div><label>DNI</label><input id="inp-3" value="${con.dni || ''}"></div>
+                <div><label>Matrícula Cliente</label><input id="inp-4" value="${con.matCliente || ''}"></div>
+                <div><label>KMs Salida</label><input id="inp-5" type="number" value="${con.kms || 0}"></div>
+                <div><label>KMs Entrada</label><input id="inp-6" type="number" value="${con.kmsEntrada || 0}"></div>`;
+            mostrarModal();
         });
     }
 
-    function cerrarEditor() {
-        document.getElementById('modal-editor').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
+    function guardarCambios() {
+        const id = document.getElementById('edit-id').value;
+        const tipo = document.getElementById('edit-tipo').value;
+        
+        if(tipo === 'coche') {
+            const updates = {
+                matricula: document.getElementById('inp-1').value.toUpperCase(),
+                modelo: document.getElementById('inp-2').value,
+                kms: Number(document.getElementById('inp-3').value),
+                estado: document.getElementById('inp-4').value
+            };
+            db.ref('coches/'+id).update(updates);
+        } else {
+            const updates = {
+                nombre: document.getElementById('inp-1').value,
+                tel: document.getElementById('inp-2').value,
+                dni: document.getElementById('inp-3').value,
+                matCliente: document.getElementById('inp-4').value,
+                kms: Number(document.getElementById('inp-5').value),
+                kmsEntrada: Number(document.getElementById('inp-6').value)
+            };
+            db.ref('contratos/'+id).update(updates);
+        }
+        alert("¡Datos actualizados con éxito!");
+        cerrarEditor();
     }
 
-    function guardarEdicionContrato() {
-        const id = document.getElementById('edit-con-id').value;
-        const updates = {
-            nombre: document.getElementById('edit-nom').value,
-            dni: document.getElementById('edit-dni').value,
-            tel: document.getElementById('edit-tel').value,
-            matCliente: document.getElementById('edit-matcli').value,
-            kms: Number(document.getElementById('edit-kms-s').value),
-            kmsEntrada: Number(document.getElementById('edit-kms-e').value)
-        };
-        db.ref('contratos/'+id).update(updates).then(() => {
-            alert("Contrato actualizado");
-            cerrarEditor();
-        });
-    }
+    function mostrarModal() { document.getElementById('modal-editor').style.display='block'; document.getElementById('overlay').style.display='block'; }
+    function cerrarEditor() { document.getElementById('modal-editor').style.display='none'; document.getElementById('overlay').style.display='none'; }
+    function cambiarFiltro(f) { filtroActual = f; document.querySelectorAll('.dash-card').forEach(c => c.classList.remove('filtro-activo')); document.getElementById('card-'+f).classList.add('filtro-activo'); pintarFlota(); }
 
-    // --- EXCEL ---
     async function exportarExcel() {
         const snap = await db.ref('contratos').once('value');
         let csv = "Fecha Salida;Matricula;Nombre;Telefono;DNI;Matricula Cliente;KMs Salida;Fecha Entrada;KMs Entrada\n";
         snap.forEach(child => {
             const d = child.val();
-            csv += `${d.fechaSalida};${d.matricula};${d.nombre};${d.tel || ''};${d.dni || ''};${d.matCliente || ''};${d.kms};${d.fechaEntrada || 'PENDIENTE'};${d.kmsEntrada || ''}\n`;
+            csv += `${d.fechaSalida || ''};${d.matricula || ''};${d.nombre || ''};${d.tel || ''};${d.dni || ''};${d.matCliente || ''};${d.kms || ''};${d.fechaEntrada || 'PENDIENTE'};${d.kmsEntrada || ''}\n`;
         });
         const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "Historial_Contratos_Skoda.csv";
+        link.download = "Historial_Cortesias.csv";
         link.click();
     }
-  </script>
+</script>
 </body>
 </html>

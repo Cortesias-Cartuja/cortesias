@@ -26,6 +26,7 @@ function cambiarPestana(modo) {
     document.getElementById('btn-accion').innerText = modo === 'salida' ? 'GUARDAR E IMPRIMIR SALIDA' : 'REGISTRAR ENTRADA Y ARCHIVAR';
     document.getElementById('btn-accion').style.background = modo === 'salida' ? '#10b981' : '#312e81';
     
+    // Limpiar formulario al cambiar
     if(modo === 'salida') {
         document.getElementById('p-f-salida').value = new Date().toLocaleString();
         document.getElementById('d-f-entrada').value = "";
@@ -44,6 +45,9 @@ function cargarCoches() {
             const c = child.val();
             c.id = child.key;
             cacheCoches.push(c);
+            
+            // Lógica: En salida solo disponibles. En entrada solo prestados.
+            // Los de 'Baja' no aparecen en ningún sitio.
             if(modoActual === 'salida' && c.estado === 'Disponible') {
                 select.innerHTML += `<option value="${c.id}">${c.matricula}</option>`;
             } else if(modoActual === 'entrada' && c.estado === 'Prestado') {
@@ -60,20 +64,24 @@ function seleccionarCoche() {
     
     // Rellenar datos vehículo
     document.getElementById('p-mod').value = coche.modelo;
+    
+    // RELLENAR DATOS DE IMPRESIÓN (Para el index.html optimizado)
     if(document.getElementById('p-mat-print')) document.getElementById('p-mat-print').value = coche.matricula;
     
-    // Rellenar datos SEGURO (si existen en el objeto coche en Firebase)
-    document.getElementById('p-seg-cia').value = coche.seguroCia || "MAPFRE"; 
-    document.getElementById('p-seg-pol').value = coche.seguroPol || "POL-99887722";
-    document.getElementById('p-seg-tel').value = coche.seguroTel || "900 123 456";
+    // RELLENAR SEGUROS DESDE DB (Si no existen, ponemos valores por defecto para no dejarlo vacío)
+    document.getElementById('p-seg-cia').value = coche.seguroCia || "PENDIENTE"; 
+    document.getElementById('p-seg-pol').value = coche.seguroPol || "PENDIENTE";
+    document.getElementById('p-seg-tel').value = coche.seguroTel || "PENDIENTE";
 
     if(modoActual === 'salida') {
         document.getElementById('p-kms').value = coche.kms;
     } else {
+        // Buscar el contrato activo para este coche en modo ENTRADA
         db.ref('contratos').orderByChild('matricula').equalTo(coche.matricula).once('value', snap => {
+            contratoActivoID = null;
             snap.forEach(child => {
                 const con = child.val();
-                if(!con.fechaEntrada) {
+                if(!con.fechaEntrada) { // El contrato que no tiene fecha de entrada es el activo
                     contratoActivoID = child.key;
                     document.getElementById('p-nom').value = con.nombre || "";
                     document.getElementById('p-dni').value = con.dni || "";
@@ -81,6 +89,7 @@ function seleccionarCoche() {
                     document.getElementById('p-dir').value = con.direccionRaw || "";
                     document.getElementById('p-mat-c').value = con.matCliente || "";
                     document.getElementById('p-kms').value = con.kms || "";
+                    document.getElementById('p-or').value = con.nOr || "";
                 }
             });
         });
@@ -88,13 +97,19 @@ function seleccionarCoche() {
 }
 
 function procesar() {
+    // Sincronizar campos de texto para la impresión antes de guardar
+    document.getElementById('p-asesor-print').value = document.getElementById('p-asesor').value;
+    document.getElementById('p-via-print').value = document.getElementById('p-via').value;
+    document.getElementById('p-tarifa-print').value = document.getElementById('p-tarifa').options[document.getElementById('p-tarifa').selectedIndex].text;
+
     if(modoActual === 'salida') finalizarSalida();
     else finalizarEntrada();
 }
 
 function finalizarSalida() {
     const idC = document.getElementById('sel-vehiculos').value;
-    if(!idC) return alert("Selecciona un coche");
+    if(!idC) return alert("Selecciona un vehículo");
+    if(!document.getElementById('p-nom').value) return alert("El nombre del cliente es obligatorio");
 
     const coche = cacheCoches.find(x => x.id === idC);
     const data = {
@@ -104,7 +119,7 @@ function finalizarSalida() {
         dni: document.getElementById('p-dni').value,
         tel: document.getElementById('p-tel').value,
         direccion: document.getElementById('p-via').value + " " + document.getElementById('p-dir').value,
-        direccionRaw: document.getElementById('p-dir').value, // Para recuperar en entrada
+        direccionRaw: document.getElementById('p-dir').value,
         cp: document.getElementById('p-cp').value,
         carnetExp: document.getElementById('p-carnet-exp').value,
         carnetCad: document.getElementById('p-carnet-cad').value,
@@ -115,7 +130,11 @@ function finalizarSalida() {
         kms: Number(document.getElementById('p-kms').value),
         combustibleSalida: document.getElementById('p-comb').value,
         asesor: document.getElementById('p-asesor').value,
-        nOr: document.getElementById('p-or').value
+        nOr: document.getElementById('p-or').value,
+        // Guardamos también los datos del seguro en el contrato por si cambian en el futuro
+        seguroCia: coche.seguroCia || "",
+        seguroPol: coche.seguroPol || "",
+        seguroTel: coche.seguroTel || ""
     };
 
     db.ref('contratos').push(data).then(() => {
@@ -127,10 +146,10 @@ function finalizarSalida() {
 
 function finalizarEntrada() {
     const idC = document.getElementById('sel-vehiculos').value;
-    if(!contratoActivoID) return alert("No se encontró el contrato activo");
+    if(!contratoActivoID) return alert("No se encontró el contrato activo para este vehículo");
 
     const kmsE = Number(document.getElementById('d-kms').value);
-    if(!kmsE) return alert("KMs de entrada obligatorios");
+    if(!kmsE) return alert("Debes introducir los KMs de entrada");
 
     db.ref('contratos/' + contratoActivoID).update({
         fechaEntrada: document.getElementById('d-f-entrada').value,
@@ -138,8 +157,13 @@ function finalizarEntrada() {
         combustibleEntrada: document.getElementById('d-comb-ent').value,
         observacionesEntrada: document.getElementById('d-danos').value
     }).then(() => {
-        db.ref('coches/' + idC).update({ estado: 'Disponible', kms: kmsE });
-        alert("Entrada registrada correctamente");
+        // Al entrar, el coche vuelve a estar 'Disponible' y se actualizan sus KMs globales
+        db.ref('coches/' + idC).update({ 
+            estado: 'Disponible', 
+            kms: kmsE 
+        });
+        alert("Entrada registrada y vehículo disponible.");
+        window.print(); // Opcional: imprimir copia de devolución
         location.reload();
     });
 }
@@ -148,6 +172,10 @@ function cargarAsesores() {
     db.ref('config/asesores').on('value', snap => {
         const s = document.getElementById('p-asesor');
         s.innerHTML = "";
+        if(!snap.exists()){
+            s.innerHTML = "<option>Asesor General</option>";
+            return;
+        }
         snap.forEach(a => { s.innerHTML += `<option>${a.val()}</option>`; });
     });
 }
